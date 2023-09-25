@@ -1,0 +1,3 @@
+[submodule "Photon/vendor/spdlog"]
+	path = Photon/vendor/spdlog
+	url = https://github.com/gabime/spdlog
