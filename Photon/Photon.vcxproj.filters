@@ -4,10 +4,13 @@
     <Filter Include="Photon">
       <UniqueIdentifier>{BD8514CA-A927-3FA0-92E2-52F47E23C6F0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Photon\Events">
+      <UniqueIdentifier>{01BB3C97-6D7B-B8CD-36B6-014BA235FDA9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Photon.h" />
-    <ClInclude Include="src\Photon\APPLICATION.H">
+    <ClInclude Include="src\Photon\Application.h">
       <Filter>Photon</Filter>
     </ClInclude>
     <ClInclude Include="src\Photon\Core.h">
@@ -15,6 +18,9 @@
     </ClInclude>
     <ClInclude Include="src\Photon\EntryPoint.h">
       <Filter>Photon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\Events\Event.h">
+      <Filter>Photon\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Photon\Log.h">
       <Filter>Photon</Filter>
