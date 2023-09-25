@@ -2,12 +2,11 @@
 
 #include "Application.h"
 
-#include "Events/ApplicationEvent.h"
-
 namespace Photon
 {
 	Application::Application() 
 	{
+		m_Window = std::unique_ptr<Window>(Window::Create());
 	}
 
 	Application::~Application()
@@ -16,9 +15,9 @@ namespace Photon
 
 	void Application::Run()
 	{
-		while (true)
+		while (m_Running)
 		{
-
+			m_Window->OnUpdate();
 		}
 	}
 }

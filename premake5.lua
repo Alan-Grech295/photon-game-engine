@@ -10,6 +10,12 @@ workspace "Photon"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- Include directories relative to root folder
+IncludeDir = {}
+IncludeDir["GLFW"] = "Photon/vendor/GLFW/include"
+
+include "Photon/vendor/GLFW"
+
 project "Photon"
     location "Photon"
     kind "SharedLib"
@@ -31,6 +37,14 @@ project "Photon"
     {
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.GLFW}",
+    }
+
+    links
+    {
+        "GLFW",
+        "opengl32.lib",
+        "dwmapi.lib",
     }
 
     filter "system:windows"

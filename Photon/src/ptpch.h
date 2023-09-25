@@ -12,6 +12,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Photon/Core.h"
+#include "Photon/Log.h"
+
 #ifdef PT_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif

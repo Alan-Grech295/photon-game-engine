@@ -1,3 +1,6 @@
 [submodule "Photon/vendor/spdlog"]
 	path = Photon/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Photon/vendor/GLFW"]
+	path = Photon/vendor/GLFW
+	url = https://github.com/Alan-Grech295/glfw.git
