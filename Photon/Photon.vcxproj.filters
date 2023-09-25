@@ -19,12 +19,22 @@
     <ClInclude Include="src\Photon\EntryPoint.h">
       <Filter>Photon</Filter>
     </ClInclude>
+    <ClInclude Include="src\Photon\Events\ApplicationEvent.h">
+      <Filter>Photon\Events</Filter>
+    </ClInclude>
     <ClInclude Include="src\Photon\Events\Event.h">
+      <Filter>Photon\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\Events\KeyEvent.h">
+      <Filter>Photon\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\Events\MouseEvent.h">
       <Filter>Photon\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Photon\Log.h">
       <Filter>Photon</Filter>
     </ClInclude>
+    <ClInclude Include="src\ptpch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
@@ -33,5 +43,6 @@
     <ClCompile Include="src\Photon\Log.cpp">
       <Filter>Photon</Filter>
     </ClCompile>
+    <ClCompile Include="src\ptpch.cpp" />
   </ItemGroup>
 </Project>

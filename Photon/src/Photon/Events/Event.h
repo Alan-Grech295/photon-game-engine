@@ -1,6 +1,5 @@
 #pragma once
 #include "Photon/Core.h"
-#include <string>
 
 namespace Photon
 {

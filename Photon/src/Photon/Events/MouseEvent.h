@@ -1,8 +1,6 @@
 #pragma once
 #include "Event.h"
 
-#include <sstream>
-
 namespace Photon
 {
 	class PHOTON_API MouseButtonEvent : public Event
