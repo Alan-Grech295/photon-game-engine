@@ -20,6 +20,7 @@ project "Photon"
     location "Photon"
     kind "SharedLib"
     language "C++"
+    staticruntime "off"
 
     targetdir("bin/" .. outputdir .. "/%{prj.name}")
     objdir("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -49,7 +50,6 @@ project "Photon"
 
     filter "system:windows"
         cppdialect "C++20"
-        staticruntime "On"
         systemversion "latest"
 
         defines 
@@ -66,18 +66,22 @@ project "Photon"
     filter "configurations:Debug"
         defines "PT_DEBUG"
         symbols "On"
+        runtime "Debug"
 
     filter "configurations:Release"
         defines "PT_RELEASE"
         optimize "On"
+        runtime "Release"
 
     filter "configurations:Dist"
         defines "PT_DIST"
         optimize "On"
+        runtime "Release"
 
 project "Sandbox"
     location "Sandbox"
     kind "ConsoleApp"
+    staticruntime "off"
 
     language "C++"
 
@@ -103,7 +107,6 @@ project "Sandbox"
 
     filter "system:windows"
         cppdialect "C++20"
-        staticruntime "On"
         systemversion "latest"
 
         defines 
@@ -113,12 +116,15 @@ project "Sandbox"
 
     filter "configurations:Debug"
         defines "PT_DEBUG"
+        runtime "Debug"
         symbols "On"
 
     filter "configurations:Release"
         defines "PT_RELEASE"
+        runtime "Release"
         optimize "On"
 
     filter "configurations:Dist"
         defines "PT_DIST"
+        runtime "Release"
         optimize "On"

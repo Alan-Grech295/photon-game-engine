@@ -83,7 +83,7 @@
       <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -109,7 +109,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -136,7 +136,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -160,6 +160,8 @@
     <ClInclude Include="src\Photon\Events\Event.h" />
     <ClInclude Include="src\Photon\Events\KeyEvent.h" />
     <ClInclude Include="src\Photon\Events\MouseEvent.h" />
+    <ClInclude Include="src\Photon\Layer.h" />
+    <ClInclude Include="src\Photon\LayerStack.h" />
     <ClInclude Include="src\Photon\Log.h" />
     <ClInclude Include="src\Photon\Window.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
@@ -167,6 +169,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp" />
+    <ClCompile Include="src\Photon\Layer.cpp" />
+    <ClCompile Include="src\Photon\LayerStack.cpp" />
     <ClCompile Include="src\Photon\Log.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\ptpch.cpp">

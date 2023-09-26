@@ -1,5 +1,6 @@
 #pragma once
 #include "Photon/Core.h"
+#include "spdlog/fmt/ostr.h"
 
 namespace Photon
 {
@@ -45,8 +46,8 @@ namespace Photon
 			return GetCategoryFlags() & category;
 		}
 
-	protected:
-		bool m_Handled = false;
+	public:
+		bool Handled = false;
 	};
 
 	class PHOTON_API EventDispatcher
@@ -64,7 +65,7 @@ namespace Photon
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
 			{
-				m_Event.m_Handled = func(*(T*)&m_Event);
+				m_Event.Handled = func(*(T*)&m_Event);
 				return true;
 			}
 

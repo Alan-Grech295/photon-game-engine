@@ -37,6 +37,12 @@
     <ClInclude Include="src\Photon\Events\MouseEvent.h">
       <Filter>Photon\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Photon\Layer.h">
+      <Filter>Photon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\LayerStack.h">
+      <Filter>Photon</Filter>
+    </ClInclude>
     <ClInclude Include="src\Photon\Log.h">
       <Filter>Photon</Filter>
     </ClInclude>
@@ -50,6 +56,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
+      <Filter>Photon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Photon\Layer.cpp">
+      <Filter>Photon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Photon\LayerStack.cpp">
       <Filter>Photon</Filter>
     </ClCompile>
     <ClCompile Include="src\Photon\Log.cpp">

@@ -3,6 +3,7 @@
 // For use by Photon applications
 
 #include "Photon/Application.h"
+#include "Photon/Layer.h"
 #include "Photon/Log.h"
 
 /* -------- ENTRY POINT -------- */
