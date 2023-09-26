@@ -37,7 +37,7 @@ namespace Photon
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << ToString() << " (" << m_RepeatCount << " repeats)";
+			ss << KeyEvent::ToString() << " (" << m_RepeatCount << " repeats)";
 			return ss.str();
 		}
 
