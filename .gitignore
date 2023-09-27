@@ -6,3 +6,6 @@ bin-int/
 
 # Files
 *.user
+
+# Ignore large Vulkan libs (see what to do about it later)
+Photon/vendor/Vulkan/lib

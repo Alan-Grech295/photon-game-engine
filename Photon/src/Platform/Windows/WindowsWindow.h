@@ -2,6 +2,8 @@
 
 #include "Photon/Window.h"
 
+//#define GLFW_INCLUDE_VULKAN
+#include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
 namespace Photon
@@ -24,6 +26,8 @@ namespace Photon
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
+
+		void InitVulkan();
 	private:
 		GLFWwindow* m_Window;
 
@@ -35,6 +39,25 @@ namespace Photon
 
 			EventCallbackFn EventCallback;
 		};
+
+		struct QueueFamilyIndices
+		{
+		public:
+			std::optional<uint32_t> graphicsFamily;
+			std::optional<uint32_t> presentFamily;
+
+			bool IsComplete()
+			{
+				return graphicsFamily.has_value() && presentFamily.has_value();
+			}
+		};
+
+		// TODO: Move to abstract renderer
+		vk::Instance m_VulkanInstance;
+		vk::DebugUtilsMessengerEXT m_DebugMessenger;
+		vk::PhysicalDevice m_PhysicalDevice;
+		vk::Device m_Device;
+		vk::Queue m_GraphicsQueue;
 
 		WindowData m_Data;
 	};

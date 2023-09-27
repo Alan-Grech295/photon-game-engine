@@ -13,6 +13,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder
 IncludeDir = {}
 IncludeDir["GLFW"] = "Photon/vendor/GLFW/include"
+IncludeDir["Vulkan"] = "Photon/vendor/Vulkan/include"
 
 include "Photon/vendor/GLFW"
 
@@ -39,13 +40,20 @@ project "Photon"
         "%{prj.name}/src",
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Vulkan}",
+    }
+
+    libdirs 
+    {
+        "Photon/vendor/Vulkan/lib",
     }
 
     links
     {
         "GLFW",
-        "opengl32.lib",
-        "dwmapi.lib",
+        "vulkan-1.lib",
+        -- "opengl32.lib",
+        -- "dwmapi.lib",
     }
 
     filter "system:windows"
@@ -64,7 +72,7 @@ project "Photon"
         }
 
     filter "configurations:Debug"
-        defines "PT_DEBUG"
+        defines { "PT_DEBUG", "PT_ENABLE_ASSERT" }
         symbols "On"
         runtime "Debug"
 
