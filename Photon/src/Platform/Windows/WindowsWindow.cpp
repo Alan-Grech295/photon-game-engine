@@ -49,9 +49,6 @@ namespace Photon
 
 			glfwSetErrorCallback(GLFWErrorCallback);
 
-			// Creating the Vulkan instance
-			InitVulkan();
-
 			s_GLFWInitialized = true;
 		}
 
@@ -144,6 +141,9 @@ namespace Photon
 			MouseMovedEvent event((float)xPos, (float)yPos);
 			data.EventCallback(event);
 		});
+
+		// Creating the Vulkan instance
+		InitVulkan();
 	}
 
 	void WindowsWindow::Shutdown()
@@ -265,6 +265,42 @@ namespace Photon
 		return CheckDeviceExtensionSupport(device, requestedExtensions);
 	}
 
+	static vk::SurfaceFormatKHR ChooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats)
+	{
+		vk::SurfaceFormatKHR surfaceFormat;
+		for (vk::SurfaceFormatKHR format : formats)
+		{
+			if (format.format == vk::Format::eB8G8R8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+			{
+				return format;
+			}
+		}
+
+		return formats[0];
+	}
+
+	static vk::PresentModeKHR ChoosePresentMode(const std::vector<vk::PresentModeKHR>& presentModes)
+	{
+		for (const vk::PresentModeKHR& presentMode : presentModes)
+		{
+			if (presentMode == vk::PresentModeKHR::eMailbox)
+				return presentMode;
+		}
+
+		return vk::PresentModeKHR::eFifo;
+	}
+
+	static vk::Extent2D ChooseSwapchainExtent(uint32_t width, uint32_t height, vk::SurfaceCapabilitiesKHR capabilities)
+	{
+		if (capabilities.currentExtent.width != UINT32_MAX)
+		{
+			return capabilities.currentExtent;
+		}
+		
+		return { std::min(capabilities.maxImageExtent.width, std::max(capabilities.minImageExtent.width, width)),
+				 std::min(capabilities.maxImageExtent.height, std::max(capabilities.minImageExtent.height, height)) };
+	}
+
 	void WindowsWindow::InitVulkan()
 	{
 		// Finds the instance version supported by the implementation
@@ -346,6 +382,12 @@ namespace Photon
 			}
 		}
 
+
+		// Creating the window surface
+		VkSurfaceKHR cSurface;
+		PT_CORE_VALIDATE(glfwCreateWindowSurface(m_VulkanInstance, m_Window, nullptr, &cSurface) == VK_SUCCESS, "Could not create a Vulkan surface");
+		m_Surface = cSurface;
+
 		// Getting queue families
 		QueueFamilyIndices indices;
 		std::vector<vk::QueueFamilyProperties> queueFamilies = m_PhysicalDevice.getQueueFamilyProperties();
@@ -356,6 +398,10 @@ namespace Photon
 			if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
 			{
 				indices.graphicsFamily = i;
+			}
+
+			if (m_PhysicalDevice.getSurfaceSupportKHR(i, m_Surface))
+			{
 				indices.presentFamily = i;
 			}
 
@@ -368,22 +414,36 @@ namespace Photon
 		PT_CORE_ASSERT(indices.IsComplete(), "Not all queue families have been found");
 
 		// Setting logical device
+		//Getting unique indices
+		std::vector<uint32_t> uniqueIndices;
+		uniqueIndices.push_back(indices.graphicsFamily.value());
+		if(indices.graphicsFamily.value() != indices.presentFamily.value())
+			uniqueIndices.push_back(indices.presentFamily.value());
+
 		float queuePriority = 1.0f;
 
-		vk::DeviceQueueCreateInfo queueCreateInfo = vk::DeviceQueueCreateInfo(
-			vk::DeviceQueueCreateFlags(),
-			indices.graphicsFamily.value(),
-			1, &queuePriority
-		);
+		std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+		for (uint32_t queueFamilyIndex : uniqueIndices)
+		{
+			queueCreateInfos.emplace_back(
+				vk::DeviceQueueCreateFlags(),
+				indices.graphicsFamily.value(),
+				1, &queuePriority);
+		}
+
+		// Device must support swapchain
+		std::vector<const char*> deviceExtensions = {
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		};
 
 		vk::PhysicalDeviceFeatures deviceFeatures = {};
 		deviceFeatures.samplerAnisotropy = true;
 
 		vk::DeviceCreateInfo logicalDeviceCreateInfo = vk::DeviceCreateInfo(
 			vk::DeviceCreateFlags(),
-			1, &queueCreateInfo,
+			(uint32_t)queueCreateInfos.size(), queueCreateInfos.data(),
 			(uint32_t)layers.size(), layers.data(),
-			0, nullptr,
+			(uint32_t)deviceExtensions.size(), deviceExtensions.data(),
 			&deviceFeatures
 		);
 
@@ -398,6 +458,72 @@ namespace Photon
 
 		// Getting graphics queue from device
 		m_GraphicsQueue = m_Device.getQueue(indices.graphicsFamily.value(), 0);
+		m_PresentQueue = m_Device.getQueue(indices.presentFamily.value(), 0);
+
+		// Getting swapchain support details
+		WindowsWindow::SwapchainSupportDetails support;
+
+		support.capabilities = m_PhysicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
+
+		PT_CORE_INFO("System supports {} up to {} images", support.capabilities.minImageCount, support.capabilities.maxImageCount);
+
+		support.formats = m_PhysicalDevice.getSurfaceFormatsKHR(m_Surface);
+		support.presentModes = m_PhysicalDevice.getSurfacePresentModesKHR(m_Surface);
+
+		// Creating the swapchain
+		vk::SurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(support.formats);
+		vk::PresentModeKHR presentMode = ChoosePresentMode(support.presentModes);
+		vk::Extent2D extent = ChooseSwapchainExtent(m_Data.Width, m_Data.Height, support.capabilities);
+
+		// Increases the image count by 1 to increase framerate
+		uint32_t imageCount = std::min(
+			support.capabilities.maxImageCount == 0 ? UINT32_MAX : support.capabilities.maxImageCount, // Max Image Count can be 0 when there is no maximum
+			support.capabilities.minImageCount + 1
+		);
+
+		// Creating the swapchain
+		vk::SwapchainCreateInfoKHR swapchainCreateInfo = vk::SwapchainCreateInfoKHR(
+			vk::SwapchainCreateFlagsKHR(),
+			m_Surface,
+			imageCount,
+			surfaceFormat.format,
+			surfaceFormat.colorSpace,
+			extent,
+			1,
+			vk::ImageUsageFlagBits::eColorAttachment
+		);
+
+		if (indices.graphicsFamily.value() != indices.presentFamily.value())
+		{
+			swapchainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+			swapchainCreateInfo.queueFamilyIndexCount = 2;
+			uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+			swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+		}
+		else
+		{
+			swapchainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
+		}
+
+		swapchainCreateInfo.preTransform = support.capabilities.currentTransform;
+		swapchainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
+		swapchainCreateInfo.presentMode = presentMode;
+		swapchainCreateInfo.clipped = VK_TRUE;
+
+		swapchainCreateInfo.oldSwapchain = vk::SwapchainKHR(nullptr);
+
+		try
+		{
+			m_SwapchainBundle.swapchain = m_Device.createSwapchainKHR(swapchainCreateInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create swapchain ({0})", e.what());
+		}
+
+		m_SwapchainBundle.images = m_Device.getSwapchainImagesKHR(m_SwapchainBundle.swapchain);
+		m_SwapchainBundle.format = surfaceFormat.format;
+		m_SwapchainBundle.extent = extent;
 	}
 
 	void WindowsWindow::OnUpdate()

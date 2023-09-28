@@ -40,9 +40,10 @@ namespace Photon
 			EventCallbackFn EventCallback;
 		};
 
+		// VULKAN VARS
+	public:
 		struct QueueFamilyIndices
 		{
-		public:
 			std::optional<uint32_t> graphicsFamily;
 			std::optional<uint32_t> presentFamily;
 
@@ -52,12 +53,31 @@ namespace Photon
 			}
 		};
 
+		struct SwapchainSupportDetails
+		{
+			vk::SurfaceCapabilitiesKHR capabilities;
+			std::vector<vk::SurfaceFormatKHR> formats;
+			std::vector<vk::PresentModeKHR> presentModes;
+		};
+	private:
+
+		struct SwapchainBundle
+		{
+			vk::SwapchainKHR swapchain;
+			std::vector<vk::Image> images;
+			vk::Format format;
+			vk::Extent2D extent;
+		} m_SwapchainBundle;
+
 		// TODO: Move to abstract renderer
 		vk::Instance m_VulkanInstance;
 		vk::DebugUtilsMessengerEXT m_DebugMessenger;
+		vk::SurfaceKHR m_Surface;
+
 		vk::PhysicalDevice m_PhysicalDevice;
 		vk::Device m_Device;
 		vk::Queue m_GraphicsQueue;
+		vk::Queue m_PresentQueue;
 
 		WindowData m_Data;
 	};

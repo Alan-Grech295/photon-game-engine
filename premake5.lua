@@ -72,7 +72,7 @@ project "Photon"
         }
 
     filter "configurations:Debug"
-        defines { "PT_DEBUG", "PT_ENABLE_ASSERT" }
+        defines { "PT_DEBUG", "PT_ENABLE_ASSERTS" }
         symbols "On"
         runtime "Debug"
 
