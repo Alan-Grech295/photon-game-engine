@@ -301,6 +301,24 @@ namespace Photon
 				 std::min(capabilities.maxImageExtent.height, std::max(capabilities.minImageExtent.height, height)) };
 	}
 
+	static std::vector<char> ReadFile(const std::string& filename)
+	{
+		std::ifstream file(filename, std::ios::ate | std::ios::binary);
+		if (!file.is_open())
+			PT_CORE_ERROR("Failed to open file {0}", filename);
+
+		size_t filesize = (size_t)file.tellg();
+
+		std::vector<char> buffer(filesize);
+
+		file.seekg(0);
+		file.read(buffer.data(), filesize);
+
+		file.close();
+
+		return buffer;
+	}
+
 	void WindowsWindow::InitVulkan()
 	{
 		// Finds the instance version supported by the implementation

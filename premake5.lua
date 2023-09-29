@@ -33,6 +33,10 @@ project "Photon"
     {
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp",
+
+        -- Vertex and fragment shaders
+        "%{prj.name}/src/**.vert",
+        "%{prj.name}/src/**.frag",
     }
 
     includedirs

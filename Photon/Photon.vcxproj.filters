@@ -7,6 +7,9 @@
     <Filter Include="Photon\Events">
       <UniqueIdentifier>{01BB3C97-6D7B-B8CD-36B6-014BA235FDA9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Photon\Shaders">
+      <UniqueIdentifier>{96178D93-82E5-8099-6B79-F1BF57E65CFE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
@@ -71,5 +74,10 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ptpch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\Photon\Shaders\vertex.vert">
+      <Filter>Photon\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
