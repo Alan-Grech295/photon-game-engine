@@ -61,10 +61,16 @@ namespace Photon
 		};
 	private:
 
+		struct SwapchainFrame
+		{
+			vk::Image image;
+			vk::ImageView imageView;
+		};
+
 		struct SwapchainBundle
 		{
 			vk::SwapchainKHR swapchain;
-			std::vector<vk::Image> images;
+			std::vector<SwapchainFrame> frames;
 			vk::Format format;
 			vk::Extent2D extent;
 		} m_SwapchainBundle;

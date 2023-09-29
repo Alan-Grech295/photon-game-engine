@@ -521,9 +521,35 @@ namespace Photon
 			PT_CORE_ASSERT(false, "Could not create swapchain ({0})", e.what());
 		}
 
-		m_SwapchainBundle.images = m_Device.getSwapchainImagesKHR(m_SwapchainBundle.swapchain);
+		auto images = m_Device.getSwapchainImagesKHR(m_SwapchainBundle.swapchain);
+		m_SwapchainBundle.frames.reserve(images.size());
+
+		for (vk::Image& img : images)
+		{
+			vk::ImageViewCreateInfo viewCreateInfo = {};
+			viewCreateInfo.image = img;
+
+			viewCreateInfo.viewType = vk::ImageViewType::e2D;
+			viewCreateInfo.components.r = vk::ComponentSwizzle::eIdentity;
+			viewCreateInfo.components.g = vk::ComponentSwizzle::eIdentity;
+			viewCreateInfo.components.b = vk::ComponentSwizzle::eIdentity;
+			viewCreateInfo.components.a = vk::ComponentSwizzle::eIdentity;
+
+			viewCreateInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
+			viewCreateInfo.subresourceRange.baseMipLevel = 0;
+			viewCreateInfo.subresourceRange.levelCount = 1;
+			viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+			viewCreateInfo.subresourceRange.layerCount = 1;
+
+			viewCreateInfo.format = surfaceFormat.format;
+
+			m_SwapchainBundle.frames.emplace_back(img, m_Device.createImageView(viewCreateInfo));
+		}
+
 		m_SwapchainBundle.format = surfaceFormat.format;
 		m_SwapchainBundle.extent = extent;
+
+		// Creating image views 
 	}
 
 	void WindowsWindow::OnUpdate()
