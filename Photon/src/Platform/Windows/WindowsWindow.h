@@ -59,7 +59,11 @@ namespace Photon
 			std::vector<vk::SurfaceFormatKHR> formats;
 			std::vector<vk::PresentModeKHR> presentModes;
 		};
-	private:
+	private:		
+		struct GraphicsPipelineOutBundle
+		{
+
+		};
 
 		struct SwapchainFrame
 		{

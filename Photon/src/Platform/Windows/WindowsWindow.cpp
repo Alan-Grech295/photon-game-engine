@@ -366,15 +366,15 @@ namespace Photon
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-		#ifdef PT_DEBUG
-			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		#endif
+#ifdef PT_DEBUG
+		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 
 		std::vector<const char*> layers;
 
-		#ifdef PT_DEBUG
-				layers.push_back("VK_LAYER_KHRONOS_validation");
-		#endif
+#ifdef PT_DEBUG
+		layers.push_back("VK_LAYER_KHRONOS_validation");
+#endif
 
 		PT_CORE_ASSERT(supported(extensions, layers), "Extensions not supported");
 
@@ -395,13 +395,13 @@ namespace Photon
 		}
 
 		vk::DispatchLoaderDynamic dldi(m_VulkanInstance, vkGetInstanceProcAddr);
-		
+
 		// Create Debug Messenger
 		vk::DebugUtilsMessengerCreateInfoEXT dmCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT(
 			vk::DebugUtilsMessengerCreateFlagsEXT(),
 			//vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | 
 			vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError,
-			vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | 
+			vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
 			vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding,
 			debugCallback,
 			nullptr
@@ -460,7 +460,7 @@ namespace Photon
 		//Getting unique indices
 		std::vector<uint32_t> uniqueIndices;
 		uniqueIndices.push_back(indices.graphicsFamily.value());
-		if(indices.graphicsFamily.value() != indices.presentFamily.value())
+		if (indices.graphicsFamily.value() != indices.presentFamily.value())
 			uniqueIndices.push_back(indices.presentFamily.value());
 
 		float queuePriority = 1.0f;
@@ -540,7 +540,7 @@ namespace Photon
 		{
 			swapchainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
 			swapchainCreateInfo.queueFamilyIndexCount = 2;
-			uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+			uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 			swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		else
@@ -602,21 +602,86 @@ namespace Photon
 		vk::ShaderModule fragShaderModule = CreateShaderModule(m_Device, fragShaderCode);
 
 		// Creating shader pipeline
-		vk::PipelineShaderStageCreateInfo vertShaderPipelineInfo(
-			vk::PipelineShaderStageCreateFlags(),
-			vk::ShaderStageFlagBits::eVertex,
-			vertShaderModule,
-			"main"
-		);
+		vk::PipelineShaderStageCreateInfo vertShaderPipelineInfo = {};
+		vertShaderPipelineInfo.flags = vk::PipelineShaderStageCreateFlags();
+		vertShaderPipelineInfo.stage = vk::ShaderStageFlagBits::eVertex;
+		vertShaderPipelineInfo.module = vertShaderModule;
+		vertShaderPipelineInfo.pName = "main";
 
-		vk::PipelineShaderStageCreateInfo fragShaderPipelineInfo(
-			vk::PipelineShaderStageCreateFlags(),
-			vk::ShaderStageFlagBits::eFragment,
-			fragShaderModule,
-			"main"
-		);
+		// Shader modules were destroyed (should they be?)
 
-		vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderPipelineInfo, fragShaderPipelineInfo };
+		vk::PipelineShaderStageCreateInfo fragShaderPipelineInfo = {};
+		fragShaderPipelineInfo.flags = vk::PipelineShaderStageCreateFlags();
+		fragShaderPipelineInfo.stage = vk::ShaderStageFlagBits::eFragment;
+		fragShaderPipelineInfo.module = fragShaderModule;
+		fragShaderPipelineInfo.pName = "main";
+
+		std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = { vertShaderPipelineInfo, fragShaderPipelineInfo };
+
+		// Creating the pipeline
+		vk::GraphicsPipelineCreateInfo pipelineInfo = {};
+		pipelineInfo.flags = vk::PipelineCreateFlags();
+
+		// Vertex Input
+		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
+		vertexInputInfo.flags = vk::PipelineVertexInputStateCreateFlags();
+		vertexInputInfo.vertexBindingDescriptionCount = 0;
+		vertexInputInfo.vertexAttributeDescriptionCount = 0;
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+
+		// Input Assembly
+		vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
+		inputAssemblyInfo.flags = vk::PipelineInputAssemblyStateCreateFlags();
+		inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
+		pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
+
+		// Viewport and scissor
+		vk::Viewport viewport = {};
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = m_SwapchainBundle.extent.width;
+		viewport.height = m_SwapchainBundle.extent.height;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+
+		vk::Rect2D scissor = {};
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+		scissor.extent = m_SwapchainBundle.extent;
+
+		vk::PipelineViewportStateCreateInfo viewportInfo = {};
+		viewportInfo.flags = vk::PipelineViewportStateCreateFlags();
+		viewportInfo.viewportCount = 1;
+		viewportInfo.pViewports = &viewport;
+		viewportInfo.scissorCount = 1;
+		viewportInfo.pScissors = &scissor;
+		pipelineInfo.pViewportState = &viewportInfo;
+
+		// Rasterizer
+		vk::PipelineRasterizationStateCreateInfo rasterizer = {};
+		rasterizer.flags = vk::PipelineRasterizationStateCreateFlags();
+		rasterizer.depthClampEnable = VK_FALSE;
+		rasterizer.rasterizerDiscardEnable = VK_FALSE;
+		rasterizer.polygonMode = vk::PolygonMode::eFill;
+		rasterizer.lineWidth = 1;
+		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+		rasterizer.frontFace = vk::FrontFace::eClockwise;
+		rasterizer.depthBiasEnable = VK_FALSE;
+		pipelineInfo.pRasterizationState = &rasterizer;
+
+		pipelineInfo.stageCount = shaderStages.size();
+		pipelineInfo.pStages = shaderStages.data();
+
+		// Multi-sampling
+		vk::PipelineMultisampleStateCreateInfo multisampling = {};
+		multisampling.flags = vk::PipelineMultisampleStateCreateFlags();
+		multisampling.sampleShadingEnable = VK_FALSE;
+		multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+		pipelineInfo.pMultisampleState = &multisampling;
+
+		// Color blend (20 min)
+
+		GraphicsPipelineOutBundle output = {};
 	}
 
 	void WindowsWindow::OnUpdate()
