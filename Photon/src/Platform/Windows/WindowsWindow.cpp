@@ -6,6 +6,7 @@
 #include "Photon/Events/MouseEvent.h"
 
 #include <set>
+#include <filesystem>
 
 namespace Photon
 {
@@ -301,11 +302,14 @@ namespace Photon
 				 std::min(capabilities.maxImageExtent.height, std::max(capabilities.minImageExtent.height, height)) };
 	}
 
-	static std::vector<char> ReadFile(const std::string& filename)
+	static std::vector<char> ReadFile(const std::filesystem::path& filename)
 	{
 		std::ifstream file(filename, std::ios::ate | std::ios::binary);
 		if (!file.is_open())
-			PT_CORE_ERROR("Failed to open file {0}", filename);
+		{
+			PT_CORE_ERROR("Failed to open file {0}", filename.string());
+			return {};
+		}
 
 		size_t filesize = (size_t)file.tellg();
 
@@ -317,6 +321,27 @@ namespace Photon
 		file.close();
 
 		return buffer;
+	}
+
+	static vk::ShaderModule CreateShaderModule(vk::Device& device, const std::vector<char>& code)
+	{
+		vk::ShaderModuleCreateInfo createInfo{};
+		createInfo.sType = vk::StructureType::eShaderModuleCreateInfo;
+		createInfo.codeSize = code.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+		vk::ShaderModule shaderModule;
+
+		try
+		{
+			shaderModule = device.createShaderModule(createInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create shader module ({0})", e.what());
+		}
+
+		return shaderModule;
 	}
 
 	void WindowsWindow::InitVulkan()
@@ -544,6 +569,7 @@ namespace Photon
 
 		for (vk::Image& img : images)
 		{
+			// Creating image views 
 			vk::ImageViewCreateInfo viewCreateInfo = {};
 			viewCreateInfo.image = img;
 
@@ -567,7 +593,30 @@ namespace Photon
 		m_SwapchainBundle.format = surfaceFormat.format;
 		m_SwapchainBundle.extent = extent;
 
-		// Creating image views 
+		// Loading example vertex and fragment shader
+		// Since the app is being launched from Sandbox the path starts from Sandbox
+		auto vertShaderCode = ReadFile("../Photon/src/Photon/Shaders/Vertex.spv");
+		auto fragShaderCode = ReadFile("../Photon/src/Photon/Shaders/Fragment.spv");
+
+		vk::ShaderModule vertShaderModule = CreateShaderModule(m_Device, vertShaderCode);
+		vk::ShaderModule fragShaderModule = CreateShaderModule(m_Device, fragShaderCode);
+
+		// Creating shader pipeline
+		vk::PipelineShaderStageCreateInfo vertShaderPipelineInfo(
+			vk::PipelineShaderStageCreateFlags(),
+			vk::ShaderStageFlagBits::eVertex,
+			vertShaderModule,
+			"main"
+		);
+
+		vk::PipelineShaderStageCreateInfo fragShaderPipelineInfo(
+			vk::PipelineShaderStageCreateFlags(),
+			vk::ShaderStageFlagBits::eFragment,
+			fragShaderModule,
+			"main"
+		);
+
+		vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderPipelineInfo, fragShaderPipelineInfo };
 	}
 
 	void WindowsWindow::OnUpdate()

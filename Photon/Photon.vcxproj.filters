@@ -76,8 +76,9 @@
     <ClCompile Include="src\ptpch.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Photon\Shaders\vertex.vert">
+    <None Include="src\Photon\Shaders\Vertex.vert">
       <Filter>Photon\Shaders</Filter>
     </None>
+    <None Include="src\Photon\Shaders\Fragment.frag" />
   </ItemGroup>
 </Project>

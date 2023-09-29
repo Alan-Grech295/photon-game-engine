@@ -9,7 +9,7 @@ public:
 
 	void OnUpdate() override
 	{
-		PT_INFO("ExampleLayer::Update");
+		//PT_INFO("ExampleLayer::Update");
 	}
 
 	void OnEvent(Photon::Event& e) override
