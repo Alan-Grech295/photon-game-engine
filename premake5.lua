@@ -70,6 +70,13 @@ project "Photon"
             "PT_BUILD_DLL",
         }
 
+        prebuildcommands
+        {
+            "CD " .. os.getcwd(),
+            "CALL ShaderCompiler.bat",
+
+        }
+
         postbuildcommands
         {
             ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")

@@ -94,6 +94,10 @@
       <AdditionalLibraryDirectories>vendor\Vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Debug-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
+    <PreBuildEvent>
+      <Command>CD D:/Dev/Photon
+CALL ShaderCompiler.bat</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Debug-windows-x86_64\Photon\Photon.dll\ (xcopy /Q /E /Y /I ..\bin\Debug-windows-x86_64\Photon\Photon.dll ..\bin\Debug-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Debug-windows-x86_64\Photon\Photon.dll ..\bin\Debug-windows-x86_64\Sandbox &gt; nul)</Command>
     </PostBuildEvent>
@@ -122,6 +126,10 @@
       <AdditionalLibraryDirectories>vendor\Vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Release-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
+    <PreBuildEvent>
+      <Command>CD D:/Dev/Photon
+CALL ShaderCompiler.bat</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Release-windows-x86_64\Photon\Photon.dll\ (xcopy /Q /E /Y /I ..\bin\Release-windows-x86_64\Photon\Photon.dll ..\bin\Release-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Release-windows-x86_64\Photon\Photon.dll ..\bin\Release-windows-x86_64\Sandbox &gt; nul)</Command>
     </PostBuildEvent>
@@ -150,6 +158,10 @@
       <AdditionalLibraryDirectories>vendor\Vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
+    <PreBuildEvent>
+      <Command>CD D:/Dev/Photon
+CALL ShaderCompiler.bat</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>IF EXIST ..\bin\Dist-windows-x86_64\Photon\Photon.dll\ (xcopy /Q /E /Y /I ..\bin\Dist-windows-x86_64\Photon\Photon.dll ..\bin\Dist-windows-x86_64\Sandbox &gt; nul) ELSE (xcopy /Q /Y /I ..\bin\Dist-windows-x86_64\Photon\Photon.dll ..\bin\Dist-windows-x86_64\Sandbox &gt; nul)</Command>
     </PostBuildEvent>
