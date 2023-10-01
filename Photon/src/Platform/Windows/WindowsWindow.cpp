@@ -344,6 +344,63 @@ namespace Photon
 		return shaderModule;
 	}
 
+	static vk::RenderPass MakeRenderPass(vk::Device device, vk::Format swapchainImageFormat)
+	{
+		vk::AttachmentDescription colorAttachment = {};
+		colorAttachment.flags = vk::AttachmentDescriptionFlags();
+		colorAttachment.format = swapchainImageFormat;
+		colorAttachment.samples = vk::SampleCountFlagBits::e1;
+		colorAttachment.loadOp = vk::AttachmentLoadOp::eClear;
+		colorAttachment.storeOp = vk::AttachmentStoreOp::eStore;
+		colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+		colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
+		colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
+		colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
+
+		vk::AttachmentReference colorAttachmentRef = {};
+		colorAttachmentRef.attachment = 0;
+		colorAttachmentRef.layout = vk::ImageLayout::eColorAttachmentOptimal;
+
+		vk::SubpassDescription subpass = {};
+		subpass.flags = vk::SubpassDescriptionFlags();
+		subpass.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+		subpass.colorAttachmentCount = 1;
+		subpass.pColorAttachments = &colorAttachmentRef;
+
+		vk::RenderPassCreateInfo renderPassInfo = {};
+		renderPassInfo.flags = vk::RenderPassCreateFlags();
+		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.pAttachments = &colorAttachment;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+
+		try
+		{
+			return device.createRenderPass(renderPassInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create render pass ({0})", e.what());
+		}
+	}
+
+	vk::PipelineLayout MakePipelineLayout(vk::Device device)
+	{
+		vk::PipelineLayoutCreateInfo layoutInfo = {};
+		layoutInfo.flags = vk::PipelineLayoutCreateFlags();
+		layoutInfo.setLayoutCount = 0;
+		layoutInfo.pushConstantRangeCount = 0;
+
+		try
+		{
+			return device.createPipelineLayout(layoutInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create pipeline layout ({0})", e.what());
+		}
+	}
+
 	void WindowsWindow::InitVulkan()
 	{
 		// Finds the instance version supported by the implementation
@@ -679,9 +736,47 @@ namespace Photon
 		multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 		pipelineInfo.pMultisampleState = &multisampling;
 
-		// Color blend (20 min)
+		// Color blend
+		vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
+		colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+		colorBlendAttachment.blendEnable = VK_TRUE;
+		vk::PipelineColorBlendStateCreateInfo colorBlending = {};
+		colorBlending.flags = vk::PipelineColorBlendStateCreateFlags();
+		colorBlending.logicOpEnable = VK_FALSE;
+		colorBlending.logicOp = vk::LogicOp::eCopy;
+		colorBlending.attachmentCount = 1;
+		colorBlending.pAttachments = &colorBlendAttachment;
+		colorBlending.blendConstants[0] = 0.0f;
+		colorBlending.blendConstants[1] = 0.0f;
+		colorBlending.blendConstants[2] = 0.0f;
+		colorBlending.blendConstants[3] = 0.0f;
+		pipelineInfo.pColorBlendState = &colorBlending;
 
-		GraphicsPipelineOutBundle output = {};
+		// Pipeline layout
+		vk::PipelineLayout pipelineLayout = MakePipelineLayout(m_Device);
+		pipelineInfo.layout = pipelineLayout;
+
+		// Render Pass
+		vk::RenderPass renderPass = MakeRenderPass(m_Device, m_SwapchainBundle.format);
+		pipelineInfo.renderPass = renderPass;
+
+		// Extra
+		pipelineInfo.basePipelineHandle = nullptr;
+
+		// Make the pipeline
+		vk::Pipeline graphicsPipeline;
+
+		try
+		{
+			graphicsPipeline = (m_Device.createGraphicsPipeline(nullptr, pipelineInfo)).value;
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create graphics pipeline ({0})", e.what());
+		}
+
+		m_Device.destroyShaderModule(vertShaderModule);
+		m_Device.destroyShaderModule(fragShaderModule);
 	}
 
 	void WindowsWindow::OnUpdate()
