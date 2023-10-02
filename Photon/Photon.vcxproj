@@ -179,6 +179,10 @@ CALL ShaderCompiler.bat</Command>
     <ClInclude Include="src\Photon\LayerStack.h" />
     <ClInclude Include="src\Photon\Log.h" />
     <ClInclude Include="src\Photon\Window.h" />
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Commands.h" />
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Frame.h" />
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Framebuffer.h" />
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Sync.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\ptpch.h" />
   </ItemGroup>
@@ -187,6 +191,7 @@ CALL ShaderCompiler.bat</Command>
     <ClCompile Include="src\Photon\Layer.cpp" />
     <ClCompile Include="src\Photon\LayerStack.cpp" />
     <ClCompile Include="src\Photon\Log.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\Tutorial\Commands.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\ptpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

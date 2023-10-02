@@ -13,6 +13,12 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\Vulkan">
+      <UniqueIdentifier>{6AE1DE2D-D66C-4CF2-DF7D-CFE64B88A8F2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Vulkan\Tutorial">
+      <UniqueIdentifier>{8DCD0BCB-79F2-5A4B-A23D-40DB8EC15969}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
@@ -52,6 +58,18 @@
     <ClInclude Include="src\Photon\Window.h">
       <Filter>Photon</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Commands.h">
+      <Filter>Platform\Vulkan\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Frame.h">
+      <Filter>Platform\Vulkan\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Framebuffer.h">
+      <Filter>Platform\Vulkan\Tutorial</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\Tutorial\Sync.h">
+      <Filter>Platform\Vulkan\Tutorial</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -69,6 +87,9 @@
     </ClCompile>
     <ClCompile Include="src\Photon\Log.cpp">
       <Filter>Photon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\Tutorial\Commands.cpp">
+      <Filter>Platform\Vulkan\Tutorial</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>

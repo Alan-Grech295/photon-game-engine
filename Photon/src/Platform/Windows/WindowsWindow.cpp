@@ -5,6 +5,11 @@
 #include "Photon/Events/KeyEvent.h"
 #include "Photon/Events/MouseEvent.h"
 
+// VULKAN
+#include "Platform/Vulkan/Tutorial/Framebuffer.h"
+#include "Platform/Vulkan/Tutorial/Commands.h"
+#include "Platform/Vulkan/Tutorial/Sync.h"
+
 #include <set>
 #include <filesystem>
 
@@ -739,7 +744,7 @@ namespace Photon
 		// Color blend
 		vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
 		colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-		colorBlendAttachment.blendEnable = VK_TRUE;
+		colorBlendAttachment.blendEnable = VK_FALSE;
 		vk::PipelineColorBlendStateCreateInfo colorBlending = {};
 		colorBlending.flags = vk::PipelineColorBlendStateCreateFlags();
 		colorBlending.logicOpEnable = VK_FALSE;
@@ -757,18 +762,16 @@ namespace Photon
 		pipelineInfo.layout = pipelineLayout;
 
 		// Render Pass
-		vk::RenderPass renderPass = MakeRenderPass(m_Device, m_SwapchainBundle.format);
-		pipelineInfo.renderPass = renderPass;
+		m_RenderPass = MakeRenderPass(m_Device, m_SwapchainBundle.format);
+		pipelineInfo.renderPass = m_RenderPass;
 
 		// Extra
 		pipelineInfo.basePipelineHandle = nullptr;
 
 		// Make the pipeline
-		vk::Pipeline graphicsPipeline;
-
 		try
 		{
-			graphicsPipeline = (m_Device.createGraphicsPipeline(nullptr, pipelineInfo)).value;
+			m_Pipeline = (m_Device.createGraphicsPipeline(nullptr, pipelineInfo)).value;
 		}
 		catch (vk::SystemError e)
 		{
@@ -777,12 +780,107 @@ namespace Photon
 
 		m_Device.destroyShaderModule(vertShaderModule);
 		m_Device.destroyShaderModule(fragShaderModule);
+
+		MakeFrameBuffers(m_Device, m_RenderPass, m_SwapchainBundle.extent, m_SwapchainBundle.frames);
+
+		m_CommandPool = MakeCommandPool(m_Device, indices);
+		m_MainCommandBuffer = MakeCommandBuffer(m_Device, m_CommandPool, m_SwapchainBundle.frames);
+
+		m_InFlightFence = MakeFence(m_Device);
+		m_ImageAvailable = MakeSemaphore(m_Device);
+		m_RenderFinished = MakeSemaphore(m_Device);
+	}
+
+	void WindowsWindow::Render()
+	{
+		m_Device.waitForFences(1, &m_InFlightFence, VK_TRUE, UINT64_MAX);
+		m_Device.resetFences(1, &m_InFlightFence);
+
+		uint32_t imageIndex = m_Device.acquireNextImageKHR(m_SwapchainBundle.swapchain, UINT64_MAX, m_ImageAvailable, nullptr).value;
+
+		vk::CommandBuffer& commandBuffer = m_SwapchainBundle.frames[imageIndex].commandBuffer;
+
+		commandBuffer.reset();
+
+		RecordDrawCommands(commandBuffer, imageIndex);
+
+		vk::SubmitInfo submitInfo = {};
+		vk::Semaphore waitSemaphores[] = { m_ImageAvailable };
+		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+		vk::Semaphore signalSemaphores[] = { m_RenderFinished };
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+
+		try
+		{
+			m_GraphicsQueue.submit(submitInfo, m_InFlightFence);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ERROR("Failed to submit draw command buffer ({0})", e.what());
+		}
+
+		vk::PresentInfoKHR presentInfo = {};
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+		vk::SwapchainKHR swapchains[] = { m_SwapchainBundle.swapchain };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapchains;
+		presentInfo.pImageIndices = &imageIndex;
+
+		m_PresentQueue.presentKHR(presentInfo);
+	}
+
+	void WindowsWindow::RecordDrawCommands(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)
+	{
+		vk::CommandBufferBeginInfo beginInfo = {};
+		try
+		{
+			commandBuffer.begin(beginInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not being recording command buffer ({0})", e.what());
+		}
+
+		vk::RenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.renderPass = m_RenderPass;
+		renderPassInfo.framebuffer = m_SwapchainBundle.frames[imageIndex].frameBuffer;
+		renderPassInfo.renderArea.offset.x = 0;
+		renderPassInfo.renderArea.offset.y = 0;
+		renderPassInfo.renderArea.extent = m_SwapchainBundle.extent;
+
+		vk::ClearValue clearColor = { std::array<float, 4>({1.0f, 0.5f, 0.25f, 1.0f}) };
+		renderPassInfo.clearValueCount = 1;
+		renderPassInfo.pClearValues = &clearColor;
+
+		commandBuffer.beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
+
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+
+		commandBuffer.draw(3, 1, 0, 0);
+
+		commandBuffer.endRenderPass();
+
+		try
+		{
+			commandBuffer.end();
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Failed recording command buffer ({0})", e.what());
+		}
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		Render();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)

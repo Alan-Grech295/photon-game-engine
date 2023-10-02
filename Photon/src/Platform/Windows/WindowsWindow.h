@@ -6,6 +6,8 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
+#include "Platform/Vulkan/Tutorial/Frame.h"
+
 namespace Photon
 {
 	class WindowsWindow : public Window
@@ -59,17 +61,10 @@ namespace Photon
 			std::vector<vk::SurfaceFormatKHR> formats;
 			std::vector<vk::PresentModeKHR> presentModes;
 		};
-	private:		
-		struct GraphicsPipelineOutBundle
-		{
 
-		};
-
-		struct SwapchainFrame
-		{
-			vk::Image image;
-			vk::ImageView imageView;
-		};
+		void Render();
+	private:	
+		void RecordDrawCommands(vk::CommandBuffer& commandBuffer, uint32_t imageIndex);
 
 		struct SwapchainBundle
 		{
@@ -88,6 +83,17 @@ namespace Photon
 		vk::Device m_Device;
 		vk::Queue m_GraphicsQueue;
 		vk::Queue m_PresentQueue;
+
+		vk::RenderPass m_RenderPass;
+		vk::Pipeline m_Pipeline;
+
+		vk::CommandPool m_CommandPool;
+		vk::CommandBuffer m_MainCommandBuffer;
+
+		vk::Fence m_InFlightFence;
+		vk::Semaphore m_ImageAvailable, m_RenderFinished;
+
+		// END VULKAN DATA
 
 		WindowData m_Data;
 	};
