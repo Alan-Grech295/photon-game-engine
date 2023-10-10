@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Platform/Vulkan/Tutorial/Frame.h"
+#include "Photon/Renderer/GraphicsContext.h"
 
 namespace Photon
 {
@@ -32,6 +33,7 @@ namespace Photon
 		void InitVulkan();
 	private:
 		GLFWwindow* m_Window;
+		GraphicsContext* m_Context;
 
 		struct WindowData
 		{
@@ -41,6 +43,8 @@ namespace Photon
 
 			EventCallbackFn EventCallback;
 		};
+
+		WindowData m_Data;
 
 		// VULKAN VARS
 	public:
@@ -95,6 +99,5 @@ namespace Photon
 
 		// END VULKAN DATA
 
-		WindowData m_Data;
 	};
 }

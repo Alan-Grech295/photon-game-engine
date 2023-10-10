@@ -13,6 +13,8 @@
 #include <set>
 #include <filesystem>
 
+#include "Platform/Vulkan/VulkanContext.h"
+
 namespace Photon
 {
 	static bool s_GLFWInitialized = false;
@@ -59,7 +61,10 @@ namespace Photon
 		}
 
 		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
+		
+		m_Context = new VulkanContext(m_Window);
+		m_Context->Init();
+		
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 
 		SetVSync(true);
@@ -159,7 +164,7 @@ namespace Photon
 
 	/* START VULKAN FUNCTIONS */
 
-	static bool supported(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
+	static bool Supported(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
 	{
 		// Supported Extensions
 		std::vector<vk::ExtensionProperties> supportedExtensions = vk::enumerateInstanceExtensionProperties();
@@ -438,7 +443,7 @@ namespace Photon
 		layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
 
-		PT_CORE_ASSERT(supported(extensions, layers), "Extensions not supported");
+		PT_CORE_ASSERT(Supported(extensions, layers), "Extensions not supported");
 
 		vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo(
 			vk::InstanceCreateFlags(),
@@ -486,6 +491,8 @@ namespace Photon
 				break;
 			}
 		}
+
+		//
 
 
 		// Creating the window surface
@@ -881,6 +888,7 @@ namespace Photon
 	{
 		glfwPollEvents();
 		Render();
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
