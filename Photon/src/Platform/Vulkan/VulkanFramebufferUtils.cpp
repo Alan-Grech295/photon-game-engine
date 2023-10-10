@@ -1,15 +1,14 @@
-#pragma once
-#include "Frame.h"
 #include "ptpch.h"
+#include "VulkanFramebufferUtils.h"
 
 namespace Photon
 {
-	void MakeFrameBuffers(vk::Device device, vk::RenderPass renderPass, vk::Extent2D extent, std::vector<SwapchainFrame>& frames)
+	void VulkanFramebufferUtils::MakeFrameBuffers(vk::Device device, vk::RenderPass renderPass, vk::Extent2D extent, std::vector<SwapchainFrame>& frames)
 	{
 		for (auto& frame : frames)
 		{
 			std::vector<vk::ImageView> attachments = {
-				frame.imageView
+				frame.ImageView
 			};
 
 			vk::FramebufferCreateInfo framebufferInfo = {};
@@ -23,7 +22,7 @@ namespace Photon
 
 			try
 			{
-				frame.frameBuffer = device.createFramebuffer(framebufferInfo);
+				frame.FrameBuffer = device.createFramebuffer(framebufferInfo);
 			}
 			catch (vk::SystemError e)
 			{

@@ -169,6 +169,7 @@ namespace Photon
 
 		// Set physical device
 		s_DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+		//s_DeviceExtensions.emplace_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
 
 		std::vector<vk::PhysicalDevice> availableDevices = s_VulkanInstance.enumeratePhysicalDevices();
 

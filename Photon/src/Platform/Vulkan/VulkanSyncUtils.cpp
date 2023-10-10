@@ -1,9 +1,9 @@
-#pragma once
-#include <vulkan/vulkan.hpp>
+#include "ptpch.h"
+#include "VulkanSyncUtils.h"
 
 namespace Photon
 {
-	vk::Semaphore MakeSemaphore(vk::Device device)
+	vk::Semaphore VulkanSyncUtils::MakeSemaphore(vk::Device device)
 	{
 		vk::SemaphoreCreateInfo semaphoreInfo = {};
 		semaphoreInfo.flags = vk::SemaphoreCreateFlags();
@@ -18,7 +18,7 @@ namespace Photon
 		}
 	}
 
-	vk::Fence MakeFence(vk::Device device)
+	vk::Fence VulkanSyncUtils::MakeFence(vk::Device device)
 	{
 		vk::FenceCreateInfo fenceInfo = {};
 		fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;

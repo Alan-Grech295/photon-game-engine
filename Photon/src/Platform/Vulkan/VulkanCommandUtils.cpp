@@ -1,9 +1,10 @@
 #include "ptpch.h"
-#include "Commands.h"
+#include "VulkanCommandUtils.h"
+#include "VulkanContext.h"
 
 namespace Photon
 {
-    vk::CommandPool MakeCommandPool(vk::Device& device, WindowsWindow::QueueFamilyIndices& queueFamilyIndices)
+    vk::CommandPool VulkanCommandUtils::MakeCommandPool(vk::Device& device, VulkanContext::QueueFamilyIndices& queueFamilyIndices)
     {
         vk::CommandPoolCreateInfo poolInfo = {};
         poolInfo.flags = vk::CommandPoolCreateFlags() | vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
@@ -19,7 +20,7 @@ namespace Photon
         }
     }
 
-    vk::CommandBuffer MakeCommandBuffer(vk::Device& device, vk::CommandPool& commandPool, std::vector<SwapchainFrame>& frames)
+    vk::CommandBuffer VulkanCommandUtils::MakeCommandBuffer(vk::Device& device, vk::CommandPool& commandPool, std::vector<SwapchainFrame>& frames)
     {
         vk::CommandBufferAllocateInfo allocateInfo = {};
         allocateInfo.commandPool = commandPool;
@@ -30,7 +31,7 @@ namespace Photon
         {
             try
             {
-                frame.commandBuffer = device.allocateCommandBuffers(allocateInfo)[0];
+                frame.CommandBuffer = device.allocateCommandBuffers(allocateInfo)[0];
             }
             catch (vk::SystemError e)
             {
