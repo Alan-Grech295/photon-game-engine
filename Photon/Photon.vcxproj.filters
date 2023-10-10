@@ -7,6 +7,9 @@
     <Filter Include="Photon\Events">
       <UniqueIdentifier>{01BB3C97-6D7B-B8CD-36B6-014BA235FDA9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Photon\Renderer">
+      <UniqueIdentifier>{038E5250-6F19-C014-782A-4309E4341C15}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Photon\Shaders">
       <UniqueIdentifier>{96178D93-82E5-8099-6B79-F1BF57E65CFE}</UniqueIdentifier>
     </Filter>
@@ -55,6 +58,12 @@
     <ClInclude Include="src\Photon\Log.h">
       <Filter>Photon</Filter>
     </ClInclude>
+    <ClInclude Include="src\Photon\Renderer\GraphicsContext.h">
+      <Filter>Photon\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\Renderer\Renderer.h">
+      <Filter>Photon\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Photon\Window.h">
       <Filter>Photon</Filter>
     </ClInclude>
@@ -70,14 +79,16 @@
     <ClInclude Include="src\Platform\Vulkan\Tutorial\Sync.h">
       <Filter>Platform\Vulkan\Tutorial</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\VulkanAPI.h">
+      <Filter>Platform\Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\VulkanContext.h">
+      <Filter>Platform\Vulkan</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ptpch.h" />
-    <ClInclude Include="src\Photon\Renderer\Renderer.h" />
-    <ClInclude Include="src\Photon\Renderer\GraphicsContext.h" />
-    <ClInclude Include="src\Platform\Vulkan\VulkanContext.h" />
-    <ClInclude Include="src\Platform\Vulkan\VulkanAPI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
@@ -92,16 +103,22 @@
     <ClCompile Include="src\Photon\Log.cpp">
       <Filter>Photon</Filter>
     </ClCompile>
+    <ClCompile Include="src\Photon\Renderer\Renderer.cpp">
+      <Filter>Photon\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Vulkan\Tutorial\Commands.cpp">
       <Filter>Platform\Vulkan\Tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\VulkanAPI.cpp">
+      <Filter>Platform\Vulkan</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\VulkanContext.cpp">
+      <Filter>Platform\Vulkan</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ptpch.cpp" />
-    <ClCompile Include="src\Photon\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Platform\Vulkan\VulkanContext.cpp" />
-    <ClCompile Include="src\Platform\Vulkan\VulkanAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Photon\Shaders\Fragment.frag">

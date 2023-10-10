@@ -1,11 +1,25 @@
 #include "ptpch.h"
 #include "VulkanAPI.h"
 
+#include <set>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
 namespace Photon
 {
+	bool VulkanAPI::s_Initialized = false;
+
+	vk::Instance VulkanAPI::s_VulkanInstance = { nullptr };
+	std::vector<const char*> VulkanAPI::s_DeviceExtensions = std::vector<const char*>();
+	std::vector<const char*> VulkanAPI::s_Layers = std::vector<const char*>();
+
+	// Debugging
+	vk::DebugUtilsMessengerEXT VulkanAPI::s_DebugMessenger = { nullptr };
+
+	vk::PhysicalDevice VulkanAPI::s_PhysicalDevice = { nullptr };
+
+	// Helper functions
+	// Checks whether the extensions are supported by the Vulkan instance
 	static bool Supported(const std::vector<const char*>& extensions, const std::vector<const char*>& layers)
 	{
 		// Supported Extensions
@@ -66,6 +80,27 @@ namespace Photon
 		return true;
 	}
 
+	static bool CheckDeviceExtensionSupport(const vk::PhysicalDevice& device, const std::vector<const char*>& requestedExtensions)
+	{
+		std::vector<vk::ExtensionProperties> extensions = device.enumerateDeviceExtensionProperties();
+		std::set<std::string> extensionsSet;
+		for (auto& ext : extensions)
+			extensionsSet.insert(ext.extensionName);
+
+		for (auto& reqExt : requestedExtensions)
+		{
+			if (!extensionsSet.contains(reqExt))
+				return false;
+		}
+
+		return true;
+	}
+
+	static bool IsSuitable(const vk::PhysicalDevice& device, const std::vector<const char*>& requestedExtensions)
+	{
+		return CheckDeviceExtensionSupport(device, requestedExtensions);
+	}
+
 	void VulkanAPI::Init()
 	{
 		if (s_Initialized)
@@ -95,18 +130,16 @@ namespace Photon
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
-		std::vector<const char*> layers;
-
 #ifdef PT_DEBUG
-		layers.push_back("VK_LAYER_KHRONOS_validation");
+		s_Layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
 
-		PT_CORE_ASSERT(Supported(extensions, layers), "Extensions not supported");
+		PT_CORE_ASSERT(Supported(extensions, s_Layers), "Extensions not supported");
 
 		vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo(
 			vk::InstanceCreateFlags(),
 			&appInfo,
-			(uint32_t)layers.size(), layers.data(), // enabled layers
+			(uint32_t)s_Layers.size(), s_Layers.data(), // enabled layers
 			(uint32_t)extensions.size(), extensions.data() // enabled extensions
 		);
 
@@ -132,9 +165,11 @@ namespace Photon
 			nullptr
 		);
 
-		m_DebugMessenger = s_VulkanInstance.createDebugUtilsMessengerEXT(dmCreateInfo, nullptr, dldi);
+		s_DebugMessenger = s_VulkanInstance.createDebugUtilsMessengerEXT(dmCreateInfo, nullptr, dldi);
 
 		// Set physical device
+		s_DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
 		std::vector<vk::PhysicalDevice> availableDevices = s_VulkanInstance.enumeratePhysicalDevices();
 
 		PT_CORE_INFO("Devices:");
@@ -143,15 +178,51 @@ namespace Photon
 			auto properties = device.getProperties();
 			PT_CORE_INFO("\tDevice Name: {0}", properties.deviceName);
 
-			if (IsSuitable(device)) {
-				m_PhysicalDevice = device;
-				PT_CORE_INFO("\tSelected Physical Device: {0}", m_PhysicalDevice.getProperties().deviceName);
+			if (IsSuitable(device, s_DeviceExtensions)) {
+				s_PhysicalDevice = device;
+				PT_CORE_INFO("\tSelected Physical Device: {0}", s_PhysicalDevice.getProperties().deviceName);
 				break;
 			}
 		}
 
 		s_Initialized = true;
 
+	}
+
+	vk::SurfaceKHR VulkanAPI::CreateSurface()
+	{
+		return vk::SurfaceKHR();
+	}
+
+	void VulkanAPI::Shutdown()
+	{
+	}
+
+	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanAPI::debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData
+	)
+	{
+		std::string type = vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(messageType));
+
+		switch (messageSeverity)
+		{
+		case (int)vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
+			PT_CORE_ERROR("VK Validation Layer ({0}): {1}", type, pCallbackData->pMessage);
+			break;
+		case (int)vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
+			PT_CORE_WARN("VK Validation Layer ({0}): {1}", type, pCallbackData->pMessage);
+			break;
+		case (int)vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
+			PT_CORE_INFO("VK Validation Layer ({0}): {1}", type, pCallbackData->pMessage);
+			break;
+		default:
+			PT_CORE_TRACE("VK Validation Layer ({0}): {1}", type, pCallbackData->pMessage);
+		}
+
+		return VK_FALSE;
 	}
 }
 
