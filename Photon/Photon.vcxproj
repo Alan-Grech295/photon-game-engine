@@ -177,9 +177,11 @@ CALL scripts/ShaderCompiler.bat</Command>
     <ClInclude Include="src\Photon\Events\MouseEvent.h" />
     <ClInclude Include="src\Photon\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Photon\Input.h" />
+    <ClInclude Include="src\Photon\KeyCodes.h" />
     <ClInclude Include="src\Photon\Layer.h" />
     <ClInclude Include="src\Photon\LayerStack.h" />
     <ClInclude Include="src\Photon\Log.h" />
+    <ClInclude Include="src\Photon\MouseButtonCodes.h" />
     <ClInclude Include="src\Photon\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Photon\Renderer\Renderer.h" />
     <ClInclude Include="src\Photon\Window.h" />

@@ -103,6 +103,8 @@
     <ClInclude Include="src\ptpch.h" />
     <ClInclude Include="src\Photon\Input.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\Photon\KeyCodes.h" />
+    <ClInclude Include="src\Photon\MouseButtonCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
