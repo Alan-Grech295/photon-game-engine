@@ -10,11 +10,16 @@ workspace "Photon"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
 -- Include directories relative to root folder
 IncludeDir = {}
 IncludeDir["GLFW"] = "Photon/vendor/GLFW/include"
-IncludeDir["Vulkan"] = "Photon/vendor/Vulkan/include"
+IncludeDir["Vulkan"] = "%{VULKAN_SDK}/Include"
 IncludeDir["ImGui"] = "Photon/vendor/imgui"
+
+LibraryDirs = {}
+LibraryDirs["Vulkan"] = "%{VULKAN_SDK}/Lib"
 
 include "Photon/vendor/GLFW"
 include "Photon/vendor/ImGui"
@@ -52,7 +57,7 @@ project "Photon"
 
     libdirs 
     {
-        "Photon/vendor/Vulkan/lib",
+        "%{LibraryDirs.Vulkan}",
     }
 
     links
@@ -77,8 +82,7 @@ project "Photon"
         prebuildcommands
         {
             "CD " .. os.getcwd(),
-            "CALL ShaderCompiler.bat",
-
+            "CALL scripts/ShaderCompiler.bat",
         }
 
         postbuildcommands

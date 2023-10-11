@@ -12,3 +12,6 @@ Photon/vendor/Vulkan/lib
 
 # Don't ignore Vulkan glsl compiler
 !Photon/vendor/Vulkan/bin/
+
+# PyCharm files
+**/.idea

@@ -73,6 +73,9 @@
     <ClInclude Include="src\Photon\Window.h">
       <Filter>Photon</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.h">
+      <Filter>Platform\Vulkan\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.h">
       <Filter>Platform\Vulkan\ImGui</Filter>
     </ClInclude>
@@ -98,7 +101,6 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ptpch.h" />
-    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
@@ -118,6 +120,9 @@
     </ClCompile>
     <ClCompile Include="src\Photon\Renderer\Renderer.cpp">
       <Filter>Photon\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.cpp">
+      <Filter>Platform\Vulkan\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.cpp">
       <Filter>Platform\Vulkan\ImGui</Filter>
@@ -141,7 +146,6 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ptpch.cpp" />
-    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Photon\Shaders\Fragment.frag">
