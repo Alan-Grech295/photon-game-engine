@@ -46,9 +46,7 @@ namespace Photon
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
-		// Keymap?
-
-		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)Application::Get().GetWindow().GetNativePtr(), true);
+		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), true);
 
 		ImGui_ImplVulkan_InitInfo info;
 		info.Instance = VulkanAPI::GetInstance();

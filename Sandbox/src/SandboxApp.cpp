@@ -14,7 +14,7 @@ public:
 
 	void OnEvent(Photon::Event& e) override
 	{
-		PT_CORE_TRACE("{0}", e.ToString());
+		//PT_CORE_TRACE("{0}", e.ToString());
 	}
 };
 

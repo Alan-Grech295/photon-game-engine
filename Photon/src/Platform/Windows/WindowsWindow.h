@@ -31,7 +31,7 @@ namespace Photon
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
 
-		inline void* GetNativePtr() const override { return m_Window; }
+		inline void* GetNativeWindow() const override { return m_Window; }
 		inline GraphicsContext* GetContext() const { return m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);

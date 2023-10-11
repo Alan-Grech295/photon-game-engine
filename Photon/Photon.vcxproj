@@ -95,7 +95,7 @@
       <ImportLibrary>..\bin\Debug-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD C:/Dev/Photon
+      <Command>CD D:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -127,7 +127,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <ImportLibrary>..\bin\Release-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD C:/Dev/Photon
+      <Command>CD D:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -159,7 +159,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD C:/Dev/Photon
+      <Command>CD D:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -176,6 +176,7 @@ CALL scripts/ShaderCompiler.bat</Command>
     <ClInclude Include="src\Photon\Events\KeyEvent.h" />
     <ClInclude Include="src\Photon\Events\MouseEvent.h" />
     <ClInclude Include="src\Photon\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\Photon\Input.h" />
     <ClInclude Include="src\Photon\Layer.h" />
     <ClInclude Include="src\Photon\LayerStack.h" />
     <ClInclude Include="src\Photon\Log.h" />
@@ -190,6 +191,7 @@ CALL scripts/ShaderCompiler.bat</Command>
     <ClInclude Include="src\Platform\Vulkan\VulkanFrame.h" />
     <ClInclude Include="src\Platform\Vulkan\VulkanFramebufferUtils.h" />
     <ClInclude Include="src\Platform\Vulkan\VulkanSyncUtils.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\ptpch.h" />
   </ItemGroup>
@@ -207,6 +209,7 @@ CALL scripts/ShaderCompiler.bat</Command>
     <ClCompile Include="src\Platform\Vulkan\VulkanContext.cpp" />
     <ClCompile Include="src\Platform\Vulkan\VulkanFramebufferUtils.cpp" />
     <ClCompile Include="src\Platform\Vulkan\VulkanSyncUtils.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\ptpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
