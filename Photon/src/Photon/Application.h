@@ -19,6 +19,10 @@ namespace Photon
 
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
+
+		inline Window& GetWindow() const { return *m_Window.get(); }
+
+		static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 
@@ -26,6 +30,9 @@ namespace Photon
 		bool m_Running = true;
 
 		LayerStack m_LayerStack;
+
+	private:
+		static Application* s_Instance;
 	};
 
 	// To be define in client

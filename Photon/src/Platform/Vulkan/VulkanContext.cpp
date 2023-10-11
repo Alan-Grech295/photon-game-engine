@@ -6,6 +6,7 @@
 #include "VulkanCommandUtils.h"
 #include "VulkanFramebufferUtils.h"
 #include "VulkanSyncUtils.h"
+#include "Photon/Events/ApplicationEvent.h"
 
 #include <GLFW/glfw3.h>
 #include <filesystem>
@@ -169,7 +170,6 @@ namespace Photon
 		m_Surface = cSurface;
 
 		// Getting queue families
-		QueueFamilyIndices indices;
 		vk::PhysicalDevice& physicalDevice = VulkanAPI::GetPhysicalDevice();
 		std::vector<vk::QueueFamilyProperties> queueFamilies = physicalDevice.getQueueFamilyProperties();
 
@@ -178,28 +178,28 @@ namespace Photon
 		{
 			if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
 			{
-				indices.graphicsFamily = i;
+				m_QueueFamilyIndices.graphicsFamily = i;
 			}
 
 			if (physicalDevice.getSurfaceSupportKHR(i, m_Surface))
 			{
-				indices.presentFamily = i;
+				m_QueueFamilyIndices.presentFamily = i;
 			}
 
-			if (indices.IsComplete())
+			if (m_QueueFamilyIndices.IsComplete())
 				break;
 
 			i++;
 		}
 
-		PT_CORE_ASSERT(indices.IsComplete(), "Not all queue families have been found");
+		PT_CORE_ASSERT(m_QueueFamilyIndices.IsComplete(), "Not all queue families have been found");
 
 		// Setting logical device
 		//Getting unique indices
 		std::vector<uint32_t> uniqueIndices;
-		uniqueIndices.push_back(indices.graphicsFamily.value());
-		if (indices.graphicsFamily.value() != indices.presentFamily.value())
-			uniqueIndices.push_back(indices.presentFamily.value());
+		uniqueIndices.push_back(m_QueueFamilyIndices.graphicsFamily.value());
+		if (m_QueueFamilyIndices.graphicsFamily.value() != m_QueueFamilyIndices.presentFamily.value())
+			uniqueIndices.push_back(m_QueueFamilyIndices.presentFamily.value());
 
 		float queuePriority = 1.0f;
 
@@ -208,7 +208,7 @@ namespace Photon
 		{
 			queueCreateInfos.emplace_back(
 				vk::DeviceQueueCreateFlags(),
-				indices.graphicsFamily.value(),
+				m_QueueFamilyIndices.graphicsFamily.value(),
 				1, &queuePriority);
 		}
 
@@ -240,35 +240,33 @@ namespace Photon
 		}
 
 		// Getting graphics queue from device
-		m_GraphicsQueue = m_Device.getQueue(indices.graphicsFamily.value(), 0);
-		m_PresentQueue = m_Device.getQueue(indices.presentFamily.value(), 0);
+		m_GraphicsQueue = m_Device.getQueue(m_QueueFamilyIndices.graphicsFamily.value(), 0);
+		m_PresentQueue = m_Device.getQueue(m_QueueFamilyIndices.presentFamily.value(), 0);
 
 		// Getting swapchain support details
-		SwapchainSupportDetails support;
+		m_Support.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
 
-		support.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
+		PT_CORE_INFO("System supports {} up to {} images", m_Support.capabilities.minImageCount, m_Support.capabilities.maxImageCount);
 
-		PT_CORE_INFO("System supports {} up to {} images", support.capabilities.minImageCount, support.capabilities.maxImageCount);
-
-		support.formats = physicalDevice.getSurfaceFormatsKHR(m_Surface);
-		support.presentModes = physicalDevice.getSurfacePresentModesKHR(m_Surface);
+		m_Support.formats = physicalDevice.getSurfaceFormatsKHR(m_Surface);
+		m_Support.presentModes = physicalDevice.getSurfacePresentModesKHR(m_Surface);
 
 		// Creating the swapchain
-		vk::SurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(support.formats);
-		vk::PresentModeKHR presentMode = ChoosePresentMode(support.presentModes);
-		vk::Extent2D extent = ChooseSwapchainExtent(width, height, support.capabilities);
+		vk::SurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(m_Support.formats);
+		vk::PresentModeKHR presentMode = ChoosePresentMode(m_Support.presentModes);
+		vk::Extent2D extent = ChooseSwapchainExtent(width, height, m_Support.capabilities);
 
 		// Increases the image count by 1 to increase framerate
-		uint32_t imageCount = std::min(
-			support.capabilities.maxImageCount == 0 ? UINT32_MAX : support.capabilities.maxImageCount, // Max Image Count can be 0 when there is no maximum
-			support.capabilities.minImageCount + 1
+		m_ImageCount = std::min(
+			m_Support.capabilities.maxImageCount == 0 ? UINT32_MAX : m_Support.capabilities.maxImageCount, // Max Image Count can be 0 when there is no maximum
+			m_Support.capabilities.minImageCount + 1
 		);
 
 		// Creating the swapchain
 		vk::SwapchainCreateInfoKHR swapchainCreateInfo = vk::SwapchainCreateInfoKHR(
 			vk::SwapchainCreateFlagsKHR(),
 			m_Surface,
-			imageCount,
+			m_ImageCount,
 			surfaceFormat.format,
 			surfaceFormat.colorSpace,
 			extent,
@@ -276,11 +274,11 @@ namespace Photon
 			vk::ImageUsageFlagBits::eColorAttachment
 		);
 
-		if (indices.graphicsFamily.value() != indices.presentFamily.value())
+		if (m_QueueFamilyIndices.graphicsFamily.value() != m_QueueFamilyIndices.presentFamily.value())
 		{
 			swapchainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
 			swapchainCreateInfo.queueFamilyIndexCount = 2;
-			uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+			uint32_t queueFamilyIndices[] = { m_QueueFamilyIndices.graphicsFamily.value(), m_QueueFamilyIndices.presentFamily.value() };
 			swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
 		else
@@ -288,7 +286,7 @@ namespace Photon
 			swapchainCreateInfo.imageSharingMode = vk::SharingMode::eExclusive;
 		}
 
-		swapchainCreateInfo.preTransform = support.capabilities.currentTransform;
+		swapchainCreateInfo.preTransform = m_Support.capabilities.currentTransform;
 		swapchainCreateInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 		swapchainCreateInfo.presentMode = presentMode;
 		swapchainCreateInfo.clipped = VK_TRUE;
@@ -461,7 +459,7 @@ namespace Photon
 
 		VulkanFramebufferUtils::MakeFrameBuffers(m_Device, m_RenderPass, m_Extent, m_Frames);
 
-		m_CommandPool = VulkanCommandUtils::MakeCommandPool(m_Device, indices);
+		m_CommandPool = VulkanCommandUtils::MakeCommandPool(m_Device, m_QueueFamilyIndices);
 		m_MainCommandBuffer = VulkanCommandUtils::MakeCommandBuffer(m_Device, m_CommandPool, m_Frames);
 
 		m_InFlightFence = VulkanSyncUtils::MakeFence(m_Device);
@@ -516,6 +514,8 @@ namespace Photon
 
 	void VulkanContext::RecordDrawCommands(vk::CommandBuffer& commandBuffer, uint32_t imageIndex)
 	{
+		m_CurrentCommandBuffer = &commandBuffer;
+
 		vk::CommandBufferBeginInfo beginInfo = {};
 		try
 		{
@@ -543,6 +543,9 @@ namespace Photon
 
 		commandBuffer.draw(3, 1, 0, 0);
 
+		AppRenderEvent event;
+		m_EventCallbackFn(event);
+
 		commandBuffer.endRenderPass();
 
 		try
@@ -553,6 +556,64 @@ namespace Photon
 		{
 			PT_CORE_ASSERT(false, "Failed recording command buffer ({0})", e.what());
 		}
+
+		m_CurrentCommandBuffer = nullptr;
+	}
+
+	vk::DescriptorPool VulkanContext::CreateDescriptorPool()
+	{
+		vk::DescriptorPoolSize poolSizes[] =
+		{
+			{ vk::DescriptorType::eCombinedImageSampler, 1 },
+		};
+		vk::DescriptorPoolCreateInfo poolInfo = {};
+		poolInfo.sType = vk::StructureType::eDescriptorPoolCreateInfo;
+		poolInfo.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet;
+		poolInfo.maxSets = 1;
+		poolInfo.poolSizeCount = 1;
+		poolInfo.pPoolSizes = poolSizes;
+
+		try
+		{
+			return m_Device.createDescriptorPool(poolInfo);
+		}
+		catch (vk::SystemError e)
+		{
+			PT_CORE_ASSERT(false, "Could not create descriptor pool ({0})", e.what());
+		}
+	}
+
+	vk::CommandBuffer VulkanContext::CreateSingleTimeCommandBuffer()
+	{
+		vk::CommandBufferAllocateInfo allocInfo = {};
+		allocInfo.level = vk::CommandBufferLevel::ePrimary;
+		allocInfo.commandPool = m_CommandPool;
+		allocInfo.commandBufferCount = 1;
+
+		vk::CommandBuffer commandBuffer = m_Device.allocateCommandBuffers(allocInfo)[0];
+
+		vk::CommandBufferBeginInfo beginInfo = {};
+		beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
+
+		commandBuffer.begin(beginInfo);
+
+		return commandBuffer;
+	}
+
+	void VulkanContext::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) {
+		vkEndCommandBuffer(commandBuffer);
+
+		vk::SubmitInfo submitInfo{};
+		submitInfo.sType = vk::StructureType::eSubmitInfo;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+
+		m_GraphicsQueue.submit(submitInfo);
+		m_GraphicsQueue.waitIdle();
+
+		std::vector<vk::CommandBuffer> commandBuffers = { commandBuffer };
+
+		m_Device.freeCommandBuffers(m_CommandPool, commandBuffers);
 	}
 }
 

@@ -80,12 +80,13 @@
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_DEBUG;PT_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,7 +109,7 @@ CALL ShaderCompiler.bat</Command>
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -140,7 +141,7 @@ CALL ShaderCompiler.bat</Command>
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Vulkan\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -175,12 +176,15 @@ CALL ShaderCompiler.bat</Command>
     <ClInclude Include="src\Photon\Events\Event.h" />
     <ClInclude Include="src\Photon\Events\KeyEvent.h" />
     <ClInclude Include="src\Photon\Events\MouseEvent.h" />
+    <ClInclude Include="src\Photon\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Photon\Layer.h" />
     <ClInclude Include="src\Photon\LayerStack.h" />
     <ClInclude Include="src\Photon\Log.h" />
     <ClInclude Include="src\Photon\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Photon\Renderer\Renderer.h" />
     <ClInclude Include="src\Photon\Window.h" />
+    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.h" />
+    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.h" />
     <ClInclude Include="src\Platform\Vulkan\VulkanAPI.h" />
     <ClInclude Include="src\Platform\Vulkan\VulkanCommandUtils.h" />
     <ClInclude Include="src\Platform\Vulkan\VulkanContext.h" />
@@ -192,10 +196,13 @@ CALL ShaderCompiler.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp" />
+    <ClCompile Include="src\Photon\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Photon\Layer.cpp" />
     <ClCompile Include="src\Photon\LayerStack.cpp" />
     <ClCompile Include="src\Photon\Log.cpp" />
     <ClCompile Include="src\Photon\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.cpp" />
     <ClCompile Include="src\Platform\Vulkan\VulkanAPI.cpp" />
     <ClCompile Include="src\Platform\Vulkan\VulkanCommandUtils.cpp" />
     <ClCompile Include="src\Platform\Vulkan\VulkanContext.cpp" />
@@ -213,6 +220,9 @@ CALL ShaderCompiler.bat</Command>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\ImGui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

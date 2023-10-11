@@ -22,9 +22,17 @@ namespace Photon
 		inline uint32_t GetHeight() const override { return m_Data.Height; }
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		inline void SetEventCallback(const EventCallbackFn& callback) override 
+		{ 
+			m_Data.EventCallback = callback; 
+			if (m_Context)
+				m_Context->SetEventCallback(callback);
+		}
 		void SetVSync(bool enabled) override;
 		bool IsVSync() const override;
+
+		inline void* GetNativePtr() const override { return m_Window; }
+		inline GraphicsContext* GetContext() const { return m_Context; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

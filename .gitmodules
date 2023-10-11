@@ -4,3 +4,6 @@
 [submodule "Photon/vendor/GLFW"]
 	path = Photon/vendor/GLFW
 	url = https://github.com/Alan-Grech295/glfw.git
+[submodule "Photon/vendor/imgui"]
+	path = Photon/vendor/imgui
+	url = https://github.com/Alan-Grech295/imgui.git

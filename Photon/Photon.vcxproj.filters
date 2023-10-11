@@ -7,6 +7,9 @@
     <Filter Include="Photon\Events">
       <UniqueIdentifier>{01BB3C97-6D7B-B8CD-36B6-014BA235FDA9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Photon\ImGui">
+      <UniqueIdentifier>{A7946B52-93F7-FAF6-3C7D-33AD28BFC679}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Photon\Renderer">
       <UniqueIdentifier>{038E5250-6F19-C014-782A-4309E4341C15}</UniqueIdentifier>
     </Filter>
@@ -18,6 +21,9 @@
     </Filter>
     <Filter Include="Platform\Vulkan">
       <UniqueIdentifier>{6AE1DE2D-D66C-4CF2-DF7D-CFE64B88A8F2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Vulkan\ImGui">
+      <UniqueIdentifier>{143E69DE-80AA-24D9-499E-BC36B5C94641}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -46,6 +52,9 @@
     <ClInclude Include="src\Photon\Events\MouseEvent.h">
       <Filter>Photon\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Photon\ImGui\ImGuiLayer.h">
+      <Filter>Photon\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Photon\Layer.h">
       <Filter>Photon</Filter>
     </ClInclude>
@@ -63,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="src\Photon\Window.h">
       <Filter>Photon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.h">
+      <Filter>Platform\Vulkan\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Vulkan\VulkanAPI.h">
       <Filter>Platform\Vulkan</Filter>
@@ -86,10 +98,14 @@
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ptpch.h" />
+    <ClInclude Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
       <Filter>Photon</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Photon\ImGui\ImGuiLayer.cpp">
+      <Filter>Photon\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Photon\Layer.cpp">
       <Filter>Photon</Filter>
@@ -102,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="src\Photon\Renderer\Renderer.cpp">
       <Filter>Photon\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiVulkanRenderer.cpp">
+      <Filter>Platform\Vulkan\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Vulkan\VulkanAPI.cpp">
       <Filter>Platform\Vulkan</Filter>
@@ -122,6 +141,7 @@
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ptpch.cpp" />
+    <ClCompile Include="src\Platform\Vulkan\ImGui\ImGuiGLFWRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Photon\Shaders\Fragment.frag">

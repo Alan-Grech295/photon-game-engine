@@ -14,8 +14,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "Photon/vendor/GLFW/include"
 IncludeDir["Vulkan"] = "Photon/vendor/Vulkan/include"
+IncludeDir["ImGui"] = "Photon/vendor/imgui"
 
 include "Photon/vendor/GLFW"
+include "Photon/vendor/ImGui"
 
 project "Photon"
     location "Photon"
@@ -45,6 +47,7 @@ project "Photon"
         "%{prj.name}/vendor/spdlog/include",
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Vulkan}",
+        "%{IncludeDir.ImGui}",
     }
 
     libdirs 
@@ -55,6 +58,7 @@ project "Photon"
     links
     {
         "GLFW",
+        "ImGui",
         "vulkan-1.lib",
         -- "opengl32.lib",
         -- "dwmapi.lib",
