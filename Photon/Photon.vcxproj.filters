@@ -55,6 +55,12 @@
     <ClInclude Include="src\Photon\ImGui\ImGuiLayer.h">
       <Filter>Photon\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\Photon\Input.h">
+      <Filter>Photon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\KeyCodes.h">
+      <Filter>Photon</Filter>
+    </ClInclude>
     <ClInclude Include="src\Photon\Layer.h">
       <Filter>Photon</Filter>
     </ClInclude>
@@ -62,6 +68,9 @@
       <Filter>Photon</Filter>
     </ClInclude>
     <ClInclude Include="src\Photon\Log.h">
+      <Filter>Photon</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Photon\MouseButtonCodes.h">
       <Filter>Photon</Filter>
     </ClInclude>
     <ClInclude Include="src\Photon\Renderer\GraphicsContext.h">
@@ -97,14 +106,13 @@
     <ClInclude Include="src\Platform\Vulkan\VulkanSyncUtils.h">
       <Filter>Platform\Vulkan</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\ptpch.h" />
-    <ClInclude Include="src\Photon\Input.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
-    <ClInclude Include="src\Photon\KeyCodes.h" />
-    <ClInclude Include="src\Photon\MouseButtonCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Photon\Application.cpp">
@@ -146,11 +154,13 @@
     <ClCompile Include="src\Platform\Vulkan\VulkanSyncUtils.cpp">
       <Filter>Platform\Vulkan</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\ptpch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\Photon\Shaders\Fragment.frag">

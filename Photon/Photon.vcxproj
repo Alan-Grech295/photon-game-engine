@@ -80,7 +80,7 @@
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_DEBUG;PT_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;vendor\NVProCore\nvvk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -95,7 +95,7 @@
       <ImportLibrary>..\bin\Debug-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD D:/Dev/Photon
+      <Command>CD C:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -108,7 +108,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;vendor\NVProCore\nvvk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -127,7 +127,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <ImportLibrary>..\bin\Release-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD D:/Dev/Photon
+      <Command>CD C:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
@@ -140,7 +140,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <PrecompiledHeaderFile>ptpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>PT_PLATFORM_WINDOWS;PT_BUILD_DLL;PT_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;C:\VulkanSDK\1.3.261.1\Include;vendor\imgui;vendor\NVProCore\nvvk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -159,7 +159,7 @@ CALL scripts/ShaderCompiler.bat</Command>
       <ImportLibrary>..\bin\Dist-windows-x86_64\Photon\Photon.lib</ImportLibrary>
     </Link>
     <PreBuildEvent>
-      <Command>CD D:/Dev/Photon
+      <Command>CD C:/Dev/Photon
 CALL scripts/ShaderCompiler.bat</Command>
     </PreBuildEvent>
     <PostBuildEvent>
