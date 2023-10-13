@@ -7,6 +7,6 @@
 [submodule "Photon/vendor/imgui"]
 	path = Photon/vendor/imgui
 	url = https://github.com/Alan-Grech295/imgui.git
-[submodule "Photon/vendor/nvpro_core"]
-	path = Photon/vendor/nvpro_core
-	url = https://github.com/nvpro-samples/nvpro_core
+[submodule "Photon/vendor/NVProCore"]
+	path = Photon/vendor/NVProCore
+	url = https://github.com/nvpro-samples/nvpro_core.git
