@@ -55,8 +55,13 @@ namespace Photon
 
 		QueueFamilyIndices m_QueueFamilyIndices;
 
-		vk::RenderPass m_RenderPass;
-		vk::Pipeline m_Pipeline;
+		vk::RenderPass m_RasterRenderPass;
+		vk::Pipeline m_RasterPipeline;
+
+		// Ray tracing pipeline
+		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RTProperties{ };
+		vk::RenderPass m_RTRenderPass;
+		vk::Pipeline m_RTPipeline;
 
 		vk::CommandPool m_CommandPool;
 		vk::CommandBuffer m_MainCommandBuffer;

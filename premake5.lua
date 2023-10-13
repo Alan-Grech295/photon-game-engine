@@ -17,7 +17,7 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "Photon/vendor/GLFW/include"
 IncludeDir["Vulkan"] = "%{VULKAN_SDK}/Include"
 IncludeDir["ImGui"] = "Photon/vendor/imgui"
-IncludeDir["NVVK"] = "Photon/vendor/NVProCore/nvvk"
+IncludeDir["NVProCore"] = "Photon/vendor/NVProCore"
 
 LibraryDirs = {}
 LibraryDirs["Vulkan"] = "%{VULKAN_SDK}/Lib"
@@ -54,7 +54,7 @@ project "Photon"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Vulkan}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.NVVK}",
+        "%{IncludeDir.NVProCore}",
     }
 
     libdirs 

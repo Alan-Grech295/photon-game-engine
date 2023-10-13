@@ -356,108 +356,115 @@ namespace Photon
 
 		std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = { vertShaderPipelineInfo, fragShaderPipelineInfo };
 
-		// Creating the pipeline
-		vk::GraphicsPipelineCreateInfo pipelineInfo = {};
-		pipelineInfo.flags = vk::PipelineCreateFlags();
-
-		// Vertex Input
-		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
-		vertexInputInfo.flags = vk::PipelineVertexInputStateCreateFlags();
-		vertexInputInfo.vertexBindingDescriptionCount = 0;
-		vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		pipelineInfo.pVertexInputState = &vertexInputInfo;
-
-		// Input Assembly
-		vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
-		inputAssemblyInfo.flags = vk::PipelineInputAssemblyStateCreateFlags();
-		inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
-		pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
-
-		// Viewport and scissor
-		vk::Viewport viewport = {};
-		viewport.x = 0;
-		viewport.y = 0;
-		viewport.width = m_Extent.width;
-		viewport.height = m_Extent.height;
-		viewport.minDepth = 0;
-		viewport.maxDepth = 1;
-
-		vk::Rect2D scissor = {};
-		scissor.offset.x = 0;
-		scissor.offset.y = 0;
-		scissor.extent = m_Extent;
-
-		vk::PipelineViewportStateCreateInfo viewportInfo = {};
-		viewportInfo.flags = vk::PipelineViewportStateCreateFlags();
-		viewportInfo.viewportCount = 1;
-		viewportInfo.pViewports = &viewport;
-		viewportInfo.scissorCount = 1;
-		viewportInfo.pScissors = &scissor;
-		pipelineInfo.pViewportState = &viewportInfo;
-
-		// Rasterizer
-		vk::PipelineRasterizationStateCreateInfo rasterizer = {};
-		rasterizer.flags = vk::PipelineRasterizationStateCreateFlags();
-		rasterizer.depthClampEnable = VK_FALSE;
-		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		rasterizer.polygonMode = vk::PolygonMode::eFill;
-		rasterizer.lineWidth = 1;
-		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
-		rasterizer.frontFace = vk::FrontFace::eClockwise;
-		rasterizer.depthBiasEnable = VK_FALSE;
-		pipelineInfo.pRasterizationState = &rasterizer;
-
-		pipelineInfo.stageCount = shaderStages.size();
-		pipelineInfo.pStages = shaderStages.data();
-
-		// Multi-sampling
-		vk::PipelineMultisampleStateCreateInfo multisampling = {};
-		multisampling.flags = vk::PipelineMultisampleStateCreateFlags();
-		multisampling.sampleShadingEnable = VK_FALSE;
-		multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
-		pipelineInfo.pMultisampleState = &multisampling;
-
-		// Color blend
-		vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
-		colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
-		colorBlendAttachment.blendEnable = VK_FALSE;
-		vk::PipelineColorBlendStateCreateInfo colorBlending = {};
-		colorBlending.flags = vk::PipelineColorBlendStateCreateFlags();
-		colorBlending.logicOpEnable = VK_FALSE;
-		colorBlending.logicOp = vk::LogicOp::eCopy;
-		colorBlending.attachmentCount = 1;
-		colorBlending.pAttachments = &colorBlendAttachment;
-		colorBlending.blendConstants[0] = 0.0f;
-		colorBlending.blendConstants[1] = 0.0f;
-		colorBlending.blendConstants[2] = 0.0f;
-		colorBlending.blendConstants[3] = 0.0f;
-		pipelineInfo.pColorBlendState = &colorBlending;
-
-		// Pipeline layout
-		vk::PipelineLayout pipelineLayout = MakePipelineLayout(m_Device);
-		pipelineInfo.layout = pipelineLayout;
-
-		// Render Pass
-		m_RenderPass = MakeRenderPass(m_Device, m_Format);
-		pipelineInfo.renderPass = m_RenderPass;
-
-		// Extra
-		pipelineInfo.basePipelineHandle = nullptr;
-
-		// Make the pipeline
-		try
+		// Creating the graphics pipeline
 		{
-			m_Pipeline = (m_Device.createGraphicsPipeline(nullptr, pipelineInfo)).value;
+			vk::GraphicsPipelineCreateInfo pipelineInfo = {};
+			pipelineInfo.flags = vk::PipelineCreateFlags();
+
+			// Vertex Input
+			vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
+			vertexInputInfo.flags = vk::PipelineVertexInputStateCreateFlags();
+			vertexInputInfo.vertexBindingDescriptionCount = 0;
+			vertexInputInfo.vertexAttributeDescriptionCount = 0;
+			pipelineInfo.pVertexInputState = &vertexInputInfo;
+
+			// Input Assembly
+			vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo = {};
+			inputAssemblyInfo.flags = vk::PipelineInputAssemblyStateCreateFlags();
+			inputAssemblyInfo.topology = vk::PrimitiveTopology::eTriangleList;
+			pipelineInfo.pInputAssemblyState = &inputAssemblyInfo;
+
+			// Viewport and scissor
+			vk::Viewport viewport = {};
+			viewport.x = 0;
+			viewport.y = 0;
+			viewport.width = m_Extent.width;
+			viewport.height = m_Extent.height;
+			viewport.minDepth = 0;
+			viewport.maxDepth = 1;
+
+			vk::Rect2D scissor = {};
+			scissor.offset.x = 0;
+			scissor.offset.y = 0;
+			scissor.extent = m_Extent;
+
+			vk::PipelineViewportStateCreateInfo viewportInfo = {};
+			viewportInfo.flags = vk::PipelineViewportStateCreateFlags();
+			viewportInfo.viewportCount = 1;
+			viewportInfo.pViewports = &viewport;
+			viewportInfo.scissorCount = 1;
+			viewportInfo.pScissors = &scissor;
+			pipelineInfo.pViewportState = &viewportInfo;
+
+			// Rasterizer
+			vk::PipelineRasterizationStateCreateInfo rasterizer = {};
+			rasterizer.flags = vk::PipelineRasterizationStateCreateFlags();
+			rasterizer.depthClampEnable = VK_FALSE;
+			rasterizer.rasterizerDiscardEnable = VK_FALSE;
+			rasterizer.polygonMode = vk::PolygonMode::eFill;
+			rasterizer.lineWidth = 1;
+			rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+			rasterizer.frontFace = vk::FrontFace::eClockwise;
+			rasterizer.depthBiasEnable = VK_FALSE;
+			pipelineInfo.pRasterizationState = &rasterizer;
+
+			pipelineInfo.stageCount = shaderStages.size();
+			pipelineInfo.pStages = shaderStages.data();
+
+			// Multi-sampling
+			vk::PipelineMultisampleStateCreateInfo multisampling = {};
+			multisampling.flags = vk::PipelineMultisampleStateCreateFlags();
+			multisampling.sampleShadingEnable = VK_FALSE;
+			multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
+			pipelineInfo.pMultisampleState = &multisampling;
+
+			// Color blend
+			vk::PipelineColorBlendAttachmentState colorBlendAttachment = {};
+			colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+			colorBlendAttachment.blendEnable = VK_FALSE;
+			vk::PipelineColorBlendStateCreateInfo colorBlending = {};
+			colorBlending.flags = vk::PipelineColorBlendStateCreateFlags();
+			colorBlending.logicOpEnable = VK_FALSE;
+			colorBlending.logicOp = vk::LogicOp::eCopy;
+			colorBlending.attachmentCount = 1;
+			colorBlending.pAttachments = &colorBlendAttachment;
+			colorBlending.blendConstants[0] = 0.0f;
+			colorBlending.blendConstants[1] = 0.0f;
+			colorBlending.blendConstants[2] = 0.0f;
+			colorBlending.blendConstants[3] = 0.0f;
+			pipelineInfo.pColorBlendState = &colorBlending;
+
+			// Pipeline layout
+			vk::PipelineLayout pipelineLayout = MakePipelineLayout(m_Device);
+			pipelineInfo.layout = pipelineLayout;
+
+			// Render Pass
+			m_RasterRenderPass = MakeRenderPass(m_Device, m_Format);
+			pipelineInfo.renderPass = m_RasterRenderPass;
+
+			// Extra
+			pipelineInfo.basePipelineHandle = nullptr;
+
+			// Make the pipeline
+			try
+			{
+				m_RasterPipeline = (m_Device.createGraphicsPipeline(nullptr, pipelineInfo)).value;
+			}
+			catch (vk::SystemError e)
+			{
+				PT_CORE_ASSERT(false, "Could not create graphics pipeline ({0})", e.what());
+			}
+
+			m_Device.destroyShaderModule(vertShaderModule);
+			m_Device.destroyShaderModule(fragShaderModule);
 		}
-		catch (vk::SystemError e)
+
+		// Ray tracing pipeline
 		{
-			PT_CORE_ASSERT(false, "Could not create graphics pipeline ({0})", e.what());
+			
 		}
 
-		m_Device.destroyShaderModule(vertShaderModule);
-		m_Device.destroyShaderModule(fragShaderModule);
-
-		VulkanFramebufferUtils::MakeFrameBuffers(m_Device, m_RenderPass, m_Extent, m_Frames);
+		VulkanFramebufferUtils::MakeFrameBuffers(m_Device, m_RasterRenderPass, m_Extent, m_Frames);
 
 		m_CommandPool = VulkanCommandUtils::MakeCommandPool(m_Device, m_QueueFamilyIndices);
 		m_MainCommandBuffer = VulkanCommandUtils::MakeCommandBuffer(m_Device, m_CommandPool, m_Frames);
@@ -527,7 +534,7 @@ namespace Photon
 		}
 
 		vk::RenderPassBeginInfo renderPassInfo = {};
-		renderPassInfo.renderPass = m_RenderPass;
+		renderPassInfo.renderPass = m_RasterRenderPass;
 		renderPassInfo.framebuffer = m_Frames[imageIndex].FrameBuffer;
 		renderPassInfo.renderArea.offset.x = 0;
 		renderPassInfo.renderArea.offset.y = 0;
@@ -539,7 +546,7 @@ namespace Photon
 
 		commandBuffer.beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_RasterPipeline);
 
 		commandBuffer.draw(3, 1, 0, 0);
 

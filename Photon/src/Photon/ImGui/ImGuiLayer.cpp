@@ -65,7 +65,7 @@ namespace Photon
 		info.UseDynamicRendering = false;
 		info.CheckVkResultFn = CheckVKResult;
 
-		ImGui_ImplVulkan_Init(&info, m_Context->m_RenderPass);
+		ImGui_ImplVulkan_Init(&info, m_Context->m_RasterRenderPass);
 
 		vk::CommandBuffer commandBuffer = m_Context->CreateSingleTimeCommandBuffer();
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);

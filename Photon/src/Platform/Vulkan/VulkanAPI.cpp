@@ -169,6 +169,9 @@ namespace Photon
 
 		// Set physical device
 		s_DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+		s_DeviceExtensions.emplace_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+		s_DeviceExtensions.emplace_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+
 		//s_DeviceExtensions.emplace_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
 
 		std::vector<vk::PhysicalDevice> availableDevices = s_VulkanInstance.enumeratePhysicalDevices();
@@ -186,17 +189,15 @@ namespace Photon
 			}
 		}
 
+		PT_CORE_ASSERT(s_PhysicalDevice, "No physical device with the given extensions could be found");
+
 		s_Initialized = true;
 
 	}
 
-	vk::SurfaceKHR VulkanAPI::CreateSurface()
-	{
-		return vk::SurfaceKHR();
-	}
-
 	void VulkanAPI::Shutdown()
 	{
+		// TODO: Shutdown vulkan
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanAPI::debugCallback(

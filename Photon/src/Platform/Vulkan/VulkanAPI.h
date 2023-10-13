@@ -9,8 +9,6 @@ namespace Photon
 	public:
 		static void Init();
 
-		static vk::SurfaceKHR CreateSurface();
-
 		inline static vk::Instance& GetInstance() { return s_VulkanInstance; }
 		inline static vk::PhysicalDevice& GetPhysicalDevice() { return s_PhysicalDevice; }
 		inline static const std::vector<const char*>& GetDeviceExtensions() { return s_DeviceExtensions; }
