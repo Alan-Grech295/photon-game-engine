@@ -1,5 +1,6 @@
 #include <Photon.h>
 
+
 class ExampleLayer : public Photon::Layer
 {
 public:

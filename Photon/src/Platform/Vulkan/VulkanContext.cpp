@@ -156,6 +156,36 @@ namespace Photon
 	{
 	}
 
+	VulkanContext::~VulkanContext()
+	{
+		m_Device.waitIdle();
+
+		m_Device.destroyFence(m_InFlightFence);
+		m_Device.destroySemaphore(m_ImageAvailable);
+		m_Device.destroySemaphore(m_RenderFinished);
+
+		m_Device.destroyCommandPool(m_CommandPool);
+
+		m_Device.destroyPipeline(m_RasterPipeline);
+		//m_Device.destroyPipelineLayout();
+		m_Device.destroyRenderPass(m_RasterRenderPass);
+		
+		m_Device.destroyPipeline(m_RTPipeline);
+		//m_Device.destroyPipelineLayout();
+		m_Device.destroyRenderPass(m_RTRenderPass);
+
+		for (auto& frame : m_Frames) {
+			m_Device.destroyImageView(frame.ImageView);
+			m_Device.destroyFramebuffer(frame.FrameBuffer);
+		}
+
+		m_Device.destroySwapchainKHR(m_Swapchain);
+		m_Device.destroy();
+
+		//TEMP
+		VulkanAPI::Shutdown();
+	}
+
 	void VulkanContext::Init()
 	{
 		VulkanAPI::Init();
@@ -461,7 +491,13 @@ namespace Photon
 
 		// Ray tracing pipeline
 		{
-			
+			m_Alloc.init(VulkanAPI::GetInstance(), m_Device, VulkanAPI::GetPhysicalDevice());
+
+			vk::PhysicalDeviceProperties2 prop2{ };
+			prop2.pNext = &m_RTProperties;
+			VulkanAPI::GetPhysicalDevice().getProperties2(&prop2);
+
+			m_RTBuilder.setup(m_Device, &m_Alloc, m_QueueFamilyIndices.graphicsFamily.value());
 		}
 
 		VulkanFramebufferUtils::MakeFrameBuffers(m_Device, m_RasterRenderPass, m_Extent, m_Frames);

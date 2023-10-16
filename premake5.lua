@@ -19,11 +19,17 @@ IncludeDir["Vulkan"] = "%{VULKAN_SDK}/Include"
 IncludeDir["ImGui"] = "Photon/vendor/imgui"
 IncludeDir["NVProCore"] = "Photon/vendor/NVProCore"
 
+-- Needed for nvprocore scripts
+-- TODO: Transfer nvprocore to separate project
+IncludeDir["NVP"] = "Photon/vendor/NVProCore/nvp"
+IncludeDir["FMT"] = "Photon/vendor/NVProCore/third_party/fmt/include"
+
 LibraryDirs = {}
 LibraryDirs["Vulkan"] = "%{VULKAN_SDK}/Lib"
 
 include "Photon/vendor/GLFW"
 include "Photon/vendor/ImGui"
+include "Photon/vendor/NVProCore"
 
 project "Photon"
     location "Photon"
@@ -55,6 +61,9 @@ project "Photon"
         "%{IncludeDir.Vulkan}",
         "%{IncludeDir.ImGui}",
         "%{IncludeDir.NVProCore}",
+
+        "%{IncludeDir.NVP}",
+        "%{IncludeDir.FMT}",
     }
 
     libdirs 
@@ -66,6 +75,7 @@ project "Photon"
     {
         "GLFW",
         "ImGui",
+        "NVProCore",
         "vulkan-1.lib",
         -- "opengl32.lib",
         -- "dwmapi.lib",

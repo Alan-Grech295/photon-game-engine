@@ -2,6 +2,9 @@
 #include "Photon/Renderer/GraphicsContext.h"
 
 #include "VulkanFrame.h"
+#include <nvvk/resourceallocator_vk.hpp>
+#include <nvvk/raytraceKHR_vk.hpp>
+#include <nvvk/memallocator_dma_vk.hpp>
 
 struct GLFWwindow;
 
@@ -11,6 +14,7 @@ namespace Photon
 	{
 	public:
 		VulkanContext(GLFWwindow* windowHandle);
+		~VulkanContext();
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 	public:
@@ -62,6 +66,9 @@ namespace Photon
 		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RTProperties{ };
 		vk::RenderPass m_RTRenderPass;
 		vk::Pipeline m_RTPipeline;
+
+		nvvk::RaytracingBuilderKHR m_RTBuilder;
+		nvvk::ResourceAllocatorDma m_Alloc;
 
 		vk::CommandPool m_CommandPool;
 		vk::CommandBuffer m_MainCommandBuffer;

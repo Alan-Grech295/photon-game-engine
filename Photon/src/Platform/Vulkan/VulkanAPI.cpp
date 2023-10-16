@@ -15,6 +15,7 @@ namespace Photon
 
 	// Debugging
 	vk::DebugUtilsMessengerEXT VulkanAPI::s_DebugMessenger = { nullptr };
+	vk::DispatchLoaderDynamic VulkanAPI::s_Dldi = vk::DispatchLoaderDynamic();
 
 	vk::PhysicalDevice VulkanAPI::s_PhysicalDevice = { nullptr };
 
@@ -152,7 +153,7 @@ namespace Photon
 			PT_CORE_ASSERT(false, "Could not create Vulkan instance ({0})", e.what());
 		}
 
-		vk::DispatchLoaderDynamic dldi(s_VulkanInstance, vkGetInstanceProcAddr);
+		s_Dldi = vk::DispatchLoaderDynamic(s_VulkanInstance, vkGetInstanceProcAddr);
 
 		// Create Debug Messenger
 		vk::DebugUtilsMessengerCreateInfoEXT dmCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT(
@@ -165,7 +166,7 @@ namespace Photon
 			nullptr
 		);
 
-		s_DebugMessenger = s_VulkanInstance.createDebugUtilsMessengerEXT(dmCreateInfo, nullptr, dldi);
+		s_DebugMessenger = s_VulkanInstance.createDebugUtilsMessengerEXT(dmCreateInfo, nullptr, s_Dldi);
 
 		// Set physical device
 		s_DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -198,6 +199,10 @@ namespace Photon
 	void VulkanAPI::Shutdown()
 	{
 		// TODO: Shutdown vulkan
+		s_VulkanInstance.destroy();
+		s_VulkanInstance.destroyDebugUtilsMessengerEXT(s_DebugMessenger, nullptr, s_Dldi);
+
+		glfwTerminate();
 	}
 
 	VKAPI_ATTR VkBool32 VKAPI_CALL VulkanAPI::debugCallback(

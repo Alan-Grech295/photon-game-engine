@@ -33,6 +33,7 @@ namespace Photon
 
 		// Debugging
 		static vk::DebugUtilsMessengerEXT s_DebugMessenger;
+		static vk::DispatchLoaderDynamic s_Dldi;
 
 		static vk::PhysicalDevice s_PhysicalDevice;
 
