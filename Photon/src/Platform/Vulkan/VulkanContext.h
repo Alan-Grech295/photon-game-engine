@@ -1,5 +1,6 @@
 #pragma once
 #include "Photon/Renderer/GraphicsContext.h"
+#include <optional>
 
 #include "VulkanFrame.h"
 #include <nvvk/resourceallocator_vk.hpp>
@@ -10,6 +11,32 @@ struct GLFWwindow;
 
 namespace Photon
 {
+	struct ObjModel
+	{
+		uint32_t     nbIndices{ 0 };
+		uint32_t     nbVertices{ 0 };
+		nvvk::Buffer vertexBuffer;    // Device buffer of all 'Vertex'
+		nvvk::Buffer indexBuffer;     // Device buffer of the indices forming triangles
+		nvvk::Buffer matColorBuffer;  // Device buffer of array of 'Wavefront material'
+		nvvk::Buffer matIndexBuffer;  // Device buffer of array of 'Wavefront material'
+	};
+
+	struct ObjInstance
+	{
+		nvmath::mat4f transform;    // Matrix of the instance
+		uint32_t      objIndex{ 0 };  // Model index reference
+	};
+
+	struct ObjDesc
+	{
+		uint32_t txtOffset;
+		VkDeviceAddress vertexAddress;
+		VkDeviceAddress indexAddress;
+		VkDeviceAddress materialAddress;
+		VkDeviceAddress materialIndexAddress;
+
+	};
+
 	class VulkanContext : public GraphicsContext
 	{
 	public:
@@ -22,6 +49,18 @@ namespace Photon
 
 		vk::CommandBuffer CreateSingleTimeCommandBuffer();
 		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
+
+		// Vulkan Raytracing Tutorial
+		auto ObjectToVKGeometry(const ObjModel& model);
+
+		void CreateBottomLevelAS();
+
+		void CreateTopLevelAS();
+
+		// TEMP FUNCS
+		void LoadModel(const std::string& filename, nvmath::mat4f transform = nvmath::mat4f(1));
+
+		void CreateTextureImages(const VkCommandBuffer& cmdBuf, const std::vector<std::string>& textures);
 	private:
 		void RecordDrawCommands(vk::CommandBuffer& commandBuffer, uint32_t imageIndex);
 	public:
@@ -77,5 +116,13 @@ namespace Photon
 
 		vk::Fence m_InFlightFence;
 		vk::Semaphore m_ImageAvailable, m_RenderFinished;
+
+
+		// TEMP
+		std::vector<ObjModel>    m_objModel;   // Model on host
+		std::vector<ObjDesc>     m_objDesc;    // Model description for device access
+		std::vector<ObjInstance> m_instances;  // Scene model instances
+		std::vector<nvvk::Texture> m_Textures;  // vector of all textures of the scene
+		nvvk::DebugUtil            m_Debug;  // Utility to name objects
 	};
 }

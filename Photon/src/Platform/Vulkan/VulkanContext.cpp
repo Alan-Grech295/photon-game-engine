@@ -12,6 +12,28 @@
 #include <filesystem>
 #include <fstream>
 
+#include "nvvkhl/appbase_vk.hpp"
+#include <nvvk/buffers_vk.hpp>
+#include "nvh/alignment.hpp"
+#include "nvh/cameramanipulator.hpp"
+#include "nvh/fileoperations.hpp"
+#include "nvvk/commands_vk.hpp"
+#include "nvvk/descriptorsets_vk.hpp"
+#include "nvvk/images_vk.hpp"
+#include "nvvk/pipeline_vk.hpp"
+#include "nvvk/renderpasses_vk.hpp"
+#include "nvvk/shaders_vk.hpp"
+#include "nvvk/buffers_vk.hpp"
+#include "nvvk/extensions_vk.hpp"
+
+#include "obj_loader.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+static std::vector<std::string> defaultSearchPaths = {
+	  "D:\\Dev\\Photon\\Sandbox\\models"
+};
+
 namespace Photon
 {
 	// Helper functions
@@ -182,6 +204,8 @@ namespace Photon
 		m_Device.destroySwapchainKHR(m_Swapchain);
 		m_Device.destroy();
 
+		m_RTBuilder.destroy();
+
 		//TEMP
 		VulkanAPI::Shutdown();
 	}
@@ -244,21 +268,44 @@ namespace Photon
 
 		// Device must support swapchain
 		std::vector<const char*> deviceExtensions = {
-			VK_KHR_SWAPCHAIN_EXTENSION_NAME
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+			VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+			VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+			VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
 		};
 
-		vk::PhysicalDeviceFeatures deviceFeatures = {};
-		deviceFeatures.samplerAnisotropy = true;
-
 		auto& layers = VulkanAPI::GetLayers();
+
+		// Enabling buffer device access feature
+		VkPhysicalDeviceBufferDeviceAddressFeatures bufferAddressFeatures = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES };
+		bufferAddressFeatures.bufferDeviceAddress = true;
+
+		// Enabling acceleration structure feature
+		VkPhysicalDeviceAccelerationStructureFeaturesKHR accelFeature{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR };		bufferAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+		accelFeature.accelerationStructure = true;
+		accelFeature.pNext = &bufferAddressFeatures;
+
+		// Enabling ray tracing
+		VkPhysicalDeviceRayTracingPipelineFeaturesKHR rtPipelineFeature{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR };
+		rtPipelineFeature.rayTracingPipeline = true;
+		rtPipelineFeature.pNext = &accelFeature;
+
+		VkPhysicalDeviceFeatures2 features = VulkanAPI::GetPhysicalDevice().getFeatures2();
+		features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		features.features.samplerAnisotropy = true;
+
+		features.pNext = &rtPipelineFeature;
 
 		vk::DeviceCreateInfo logicalDeviceCreateInfo = vk::DeviceCreateInfo(
 			vk::DeviceCreateFlags(),
 			(uint32_t)queueCreateInfos.size(), queueCreateInfos.data(),
 			(uint32_t)layers.size(), layers.data(),
 			(uint32_t)deviceExtensions.size(), deviceExtensions.data(),
-			&deviceFeatures
+			nullptr
 		);
+
+		logicalDeviceCreateInfo.pNext = &features;
 
 		try
 		{
@@ -268,6 +315,8 @@ namespace Photon
 		{
 			PT_CORE_ASSERT(false, "Could not create the logical device ({0})", e.what());
 		}
+
+		load_VK_EXTENSIONS(VulkanAPI::GetInstance(), vkGetInstanceProcAddr, m_Device, vkGetDeviceProcAddr);
 
 		// Getting graphics queue from device
 		m_GraphicsQueue = m_Device.getQueue(m_QueueFamilyIndices.graphicsFamily.value(), 0);
@@ -498,6 +547,11 @@ namespace Photon
 			VulkanAPI::GetPhysicalDevice().getProperties2(&prop2);
 
 			m_RTBuilder.setup(m_Device, &m_Alloc, m_QueueFamilyIndices.graphicsFamily.value());
+
+			LoadModel("D:\\Dev\\Photon\\Sandbox\\models\\sphere.obj");
+
+			CreateBottomLevelAS();
+			CreateTopLevelAS();
 		}
 
 		VulkanFramebufferUtils::MakeFrameBuffers(m_Device, m_RasterRenderPass, m_Extent, m_Frames);
@@ -641,6 +695,176 @@ namespace Photon
 		commandBuffer.begin(beginInfo);
 
 		return commandBuffer;
+	}
+
+	auto VulkanContext::ObjectToVKGeometry(const ObjModel& model)
+	{
+		vk::DeviceAddress vertexAddress = nvvk::getBufferDeviceAddress(m_Device, model.vertexBuffer.buffer);
+		vk::DeviceAddress indexAddress = nvvk::getBufferDeviceAddress(m_Device, model.indexBuffer.buffer);
+
+		uint32_t maxPrimitiveCount = model.nbIndices / 3;
+
+		// Describe buffer as array of VertexObj
+		vk::AccelerationStructureGeometryTrianglesDataKHR triangles{};
+		triangles.vertexFormat = vk::Format::eR32G32B32Sfloat;
+		triangles.vertexData.deviceAddress = vertexAddress;
+		triangles.vertexStride = sizeof(VertexObj);
+
+		// Describe index data
+		triangles.indexType = vk::IndexType::eUint32;
+		triangles.indexData.deviceAddress = indexAddress;
+
+		triangles.maxVertex = model.nbVertices - 1;
+
+		// Identify the above data as containing opaque triangles
+		vk::AccelerationStructureGeometryKHR asGeometry{};
+		asGeometry.geometryType = vk::GeometryTypeKHR::eTriangles;
+		asGeometry.flags = vk::GeometryFlagBitsKHR::eOpaque;
+		asGeometry.geometry.triangles = triangles;
+
+		// The array is used to build the BLAS
+		vk::AccelerationStructureBuildRangeInfoKHR offset;
+		offset.firstVertex = 0;
+		offset.primitiveCount = maxPrimitiveCount;
+		offset.primitiveOffset = 0;
+		offset.transformOffset = 0;
+
+		// BLAS is made of only one geometry
+		nvvk::RaytracingBuilderKHR::BlasInput input;
+		input.asGeometry.emplace_back(asGeometry);
+		input.asBuildOffsetInfo.emplace_back(offset);
+
+		return input;
+	}
+
+	void VulkanContext::CreateBottomLevelAS()
+	{
+		// BLAS - Storing each primitive in a geometry
+		std::vector<nvvk::RaytracingBuilderKHR::BlasInput> allBlas;
+		allBlas.reserve(m_objModel.size());
+		for (const auto& obj : m_objModel)
+		{
+			auto blas = ObjectToVKGeometry(obj);
+
+			// We could add more geometry in each BLAS, but we add only one for now
+			allBlas.emplace_back(blas);
+		}
+		m_RTBuilder.buildBlas(allBlas, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+	}
+
+	void VulkanContext::CreateTopLevelAS()
+	{
+		std::vector<VkAccelerationStructureInstanceKHR> tlas;
+		tlas.reserve(m_instances.size());
+		for (const ObjInstance& inst : m_instances)
+		{
+			VkAccelerationStructureInstanceKHR rayInst{};
+			rayInst.transform = nvvk::toTransformMatrixKHR(inst.transform);  // Position of the instance
+			rayInst.instanceCustomIndex = inst.objIndex;                               // gl_InstanceCustomIndexEXT
+			rayInst.accelerationStructureReference = m_RTBuilder.getBlasDeviceAddress(inst.objIndex);
+			rayInst.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+			rayInst.mask = 0xFF;       //  Only be hit if rayMask & instance.mask != 0
+			rayInst.instanceShaderBindingTableRecordOffset = 0;  // We will use the same hit group for all objects
+			tlas.emplace_back(rayInst);
+		}
+		m_RTBuilder.buildTlas(tlas, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+	}
+
+	//--------------------------------------------------------------------------------------------------
+	// Creating all textures and samplers
+	//
+	void VulkanContext::CreateTextureImages(const VkCommandBuffer& cmdBuf, const std::vector<std::string>& textures)
+	{
+		VkSamplerCreateInfo samplerCreateInfo{ VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+		samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+		samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+		samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		samplerCreateInfo.maxLod = FLT_MAX;
+
+		VkFormat format = VK_FORMAT_R8G8B8A8_SRGB;
+
+		// If no textures are present, create a dummy one to accommodate the pipeline layout
+		if (textures.empty() && m_Textures.empty())
+		{
+			nvvk::Texture texture;
+
+			std::array<uint8_t, 4> color{ 255u, 255u, 255u, 255u };
+			VkDeviceSize           bufferSize = sizeof(color);
+			auto                   imgSize = VkExtent2D{ 1, 1 };
+			auto                   imageCreateInfo = nvvk::makeImage2DCreateInfo(imgSize, format);
+
+			// Creating the dummy texture
+			nvvk::Image           image = m_Alloc.createImage(cmdBuf, bufferSize, color.data(), imageCreateInfo);
+			VkImageViewCreateInfo ivInfo = nvvk::makeImageViewCreateInfo(image.image, imageCreateInfo);
+			texture = m_Alloc.createTexture(image, ivInfo, samplerCreateInfo);
+
+			// The image format must be in VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			nvvk::cmdBarrierImageLayout(cmdBuf, texture.image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			m_Textures.push_back(texture);
+		}
+		else
+		{
+			PT_CORE_ASSERT(false, "Textured models are not supported");
+		}
+	}
+
+	void VulkanContext::LoadModel(const std::string& filename, nvmath::mat4f transform)
+	{
+		PT_CORE_INFO("Loading File:  {0} \n", filename.c_str());
+		ObjLoader loader;
+		loader.loadModel(filename);
+
+		// Converting from Srgb to linear
+		for (auto& m : loader.m_materials)
+		{
+			m.ambient = nvmath::pow(m.ambient, 2.2f);
+			m.diffuse = nvmath::pow(m.diffuse, 2.2f);
+			m.specular = nvmath::pow(m.specular, 2.2f);
+		}
+
+		ObjModel model;
+		model.nbIndices = static_cast<uint32_t>(loader.m_indices.size());
+		model.nbVertices = static_cast<uint32_t>(loader.m_vertices.size());
+
+		// Create the buffers on Device and copy vertices, indices and materials
+		nvvk::CommandPool  cmdBufGet(m_Device, m_QueueFamilyIndices.graphicsFamily.value());
+		VkCommandBuffer    cmdBuf = cmdBufGet.createCommandBuffer();
+		VkBufferUsageFlags flag = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+		VkBufferUsageFlags rayTracingFlags =  // used also for building acceleration structures
+			flag | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		model.vertexBuffer = m_Alloc.createBuffer(cmdBuf, loader.m_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | rayTracingFlags);
+		model.indexBuffer = m_Alloc.createBuffer(cmdBuf, loader.m_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | rayTracingFlags);
+		model.matColorBuffer = m_Alloc.createBuffer(cmdBuf, loader.m_materials, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | flag);
+		model.matIndexBuffer = m_Alloc.createBuffer(cmdBuf, loader.m_matIndx, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | flag);
+		// Creates all textures found and find the offset for this model
+		auto txtOffset = static_cast<uint32_t>(m_Textures.size());
+		CreateTextureImages(cmdBuf, loader.m_textures);
+		cmdBufGet.submitAndWait(cmdBuf);
+		m_Alloc.finalizeAndReleaseStaging();
+
+		std::string objNb = std::to_string(m_objModel.size());
+		m_Debug.setObjectName(model.vertexBuffer.buffer, (std::string("vertex_" + objNb)));
+		m_Debug.setObjectName(model.indexBuffer.buffer, (std::string("index_" + objNb)));
+		m_Debug.setObjectName(model.matColorBuffer.buffer, (std::string("mat_" + objNb)));
+		m_Debug.setObjectName(model.matIndexBuffer.buffer, (std::string("matIdx_" + objNb)));
+
+		// Keeping transformation matrix of the instance
+		ObjInstance instance;
+		instance.transform = transform;
+		instance.objIndex = static_cast<uint32_t>(m_objModel.size());
+		m_instances.push_back(instance);
+
+		// Creating information for device access
+		ObjDesc desc;
+		desc.txtOffset = txtOffset;
+		desc.vertexAddress = nvvk::getBufferDeviceAddress(m_Device, model.vertexBuffer.buffer);
+		desc.indexAddress = nvvk::getBufferDeviceAddress(m_Device, model.indexBuffer.buffer);
+		desc.materialAddress = nvvk::getBufferDeviceAddress(m_Device, model.matColorBuffer.buffer);
+		desc.materialIndexAddress = nvvk::getBufferDeviceAddress(m_Device, model.matIndexBuffer.buffer);
+
+		// Keeping the obj host model and device description
+		m_objModel.emplace_back(model);
+		m_objDesc.emplace_back(desc);
 	}
 
 	void VulkanContext::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) {

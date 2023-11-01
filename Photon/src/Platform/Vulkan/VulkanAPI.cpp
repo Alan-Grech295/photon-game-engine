@@ -150,7 +150,7 @@ namespace Photon
 		}
 		catch (vk::SystemError e)
 		{
-			PT_CORE_ASSERT(false, "Could not create Vulkan instance ({0})", e.what());
+			PT_CORE_ASSERT(false, std::string("Could not create Vulkan instance: ") + e.what());
 		}
 
 		s_Dldi = vk::DispatchLoaderDynamic(s_VulkanInstance, vkGetInstanceProcAddr);
@@ -170,10 +170,10 @@ namespace Photon
 
 		// Set physical device
 		s_DeviceExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+		s_DeviceExtensions.emplace_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 		s_DeviceExtensions.emplace_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
 		s_DeviceExtensions.emplace_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
-
-		//s_DeviceExtensions.emplace_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+		s_DeviceExtensions.emplace_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 
 		std::vector<vk::PhysicalDevice> availableDevices = s_VulkanInstance.enumeratePhysicalDevices();
 

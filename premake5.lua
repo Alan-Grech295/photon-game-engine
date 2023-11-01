@@ -23,6 +23,8 @@ IncludeDir["NVProCore"] = "Photon/vendor/NVProCore"
 -- TODO: Transfer nvprocore to separate project
 IncludeDir["NVP"] = "Photon/vendor/NVProCore/nvp"
 IncludeDir["FMT"] = "Photon/vendor/NVProCore/third_party/fmt/include"
+IncludeDir["ObjectLoader"] = "Photon/vendor/NVProCore/objloader"
+IncludeDir["STB"] = "Photon/vendor/NVProCore/third_party/stb"
 
 LibraryDirs = {}
 LibraryDirs["Vulkan"] = "%{VULKAN_SDK}/Lib"
@@ -64,6 +66,8 @@ project "Photon"
 
         "%{IncludeDir.NVP}",
         "%{IncludeDir.FMT}",
+        "%{IncludeDir.ObjectLoader}",
+        "%{IncludeDir.STB}",
     }
 
     libdirs 
